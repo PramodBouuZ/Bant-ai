@@ -1,0 +1,7 @@
+{
+  "name": "BANTConfirm AI Marketplace",
+  "description": "An AI-powered SaaS and IT Marketplace for Indian companies and enterprises, allowing users to post requirements, get AI-qualified leads, and earn commissions. Features include BANT parameter integration, voice search, chat-based AI, and role-based dashboards.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
