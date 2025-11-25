@@ -74,15 +74,6 @@ const LoginPage: React.FC = () => {
         <p className="text-center text-sm text-gray-600">
           Don't have an account? <a href="#/signup" className="font-medium text-blue-600 hover:text-blue-500">Sign Up</a>
         </p>
-        <p className="text-center text-xs text-gray-500 mt-4">
-          <span className="font-semibold">Quick Login (will no longer work after Supabase integration):</span>
-          <br />
-          Admin: `admin@example.com` / `password`
-          <br />
-          Vendor: `vendor@example.com` / `password`
-          <br />
-          User: `user@example.com` / `password`
-        </p>
       </div>
     </div>
   );
