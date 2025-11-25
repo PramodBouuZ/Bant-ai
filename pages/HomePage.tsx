@@ -1,14 +1,24 @@
 
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  APP_NAME, APP_DESCRIPTION, APP_TAGLINE, COLORS,
-  MOCK_PRODUCTS, MOCK_CATEGORIES
+  APP_NAME, MOCK_PRODUCTS, MOCK_CATEGORIES
 } from '../constants';
 import { ProductCategory, Product } from '../types';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    // Check for success param from PostRequirementPage
+    if (location.search.includes('success=true')) {
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 5000);
+    }
+  }, [location]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +51,12 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
+      {showSuccess && (
+         <div className="fixed top-20 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-xl z-50 animate-bounce">
+           ✅ Enquiry Posted Successfully!
+         </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl shadow-lg p-8 md:p-16 mb-12 overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-10">
@@ -71,6 +87,15 @@ const HomePage: React.FC = () => {
               Search
             </button>
           </form>
+          
+          <div className="mt-8 flex justify-center gap-4">
+             <button 
+               onClick={() => navigate('/post-requirement')}
+               className="bg-white text-blue-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1"
+             >
+               ✨ Post Requirement with AI
+             </button>
+          </div>
         </div>
       </section>
 
@@ -141,8 +166,8 @@ const HomePage: React.FC = () => {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <div className="bg-white text-gray-800 p-8 rounded-lg shadow-md text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-blue-600 mx-auto mb-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21v-4.75m0 0V7.5M4.75 7.5h14.5M4.75 7.5a6.002 6.002 0 00-4.083 4.878A6.002 6.002 0 004.75 16.5m14.5 0a6.002 6.002 0 004.083-4.878A6.002 6.002 0 0019.25 7.5m-14.5 9h14.5m-9-4.75h9.5" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 text-blue-600 mx-auto mb-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21v-4.75m0 0V7.5M4.75 7.5h14.5M4.75 7.5a6.002 6.002 0 00-4.083 4.878A6.002 6.002 0 004.75 16.5m14.5 0a6.002 6.002 0 004.083-4.878A6.002 6.002 0 0019.25 7.5m-14.5 9h14.5m-9-4.75h9.5" />
             </svg>
             <h3 className="text-2xl font-bold mb-3">Intelligent Matching</h3>
             <p className="text-gray-600">
@@ -150,8 +175,8 @@ const HomePage: React.FC = () => {
             </p>
           </div>
           <div className="bg-white text-gray-800 p-8 rounded-lg shadow-md text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-blue-600 mx-auto mb-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.952-.303 3.8-.84 5.518-.328 1.05-.596 1.48-.689 1.636l-.018.025a1 1 0 01-.69.31h-4.346a1 1 0 01-.69-.31l-.018-.025c-.093-.156-.361-.586-.689-1.636C3.303 15.8 3 13.952 3 12c0-2.115.405-4.14 1.147-6.042.342-.893.456-1.077.56-1.282A1.001 1.001 0 015.657 4.5h12.686c.334 0 .652.164.843.44.104.205.218.39.56 1.282A15.926 15.926 0 0121 12z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 text-blue-600 mx-auto mb-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.952-.303 3.8-.84 5.518-.328 1.05-.596 1.48-.689 1.636l-.018.025a1 1 0 01-.69.31h-4.346a1 1 0 01-.69-.31l-.018-.025c-.093-.156-.361-.586-.689-1.636C3.303 15.8 3 13.952 3 12c0-2.115.405-4.14 1.147-6.042.342-.893.456-1.077.56-1.282A1.001 1.001 0 015.657 4.5h12.686c.334 0 .652.164.843.44.104.205.218.39.56 1.282A15.926 15.926 0 0121 12z" />
             </svg>
             <h3 className="text-2xl font-bold mb-3">Verified Vendors</h3>
             <p className="text-gray-600">
@@ -159,8 +184,8 @@ const HomePage: React.FC = () => {
             </p>
           </div>
           <div className="bg-white text-gray-800 p-8 rounded-lg shadow-md text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-blue-600 mx-auto mb-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.59-3.045M18.75 9.75L22.929 12l-4.179 2.25m0-4.5l-5.59-3.045M5.625 15.75l5.844 3.179M20.25 15.75l-5.844 3.179M7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-12 h-12 text-blue-600 mx-auto mb-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m0-4.5l5.59-3.045M18.75 9.75L22.929 12l-4.179 2.25m0-4.5l-5.59-3.045M5.625 15.75l5.844 3.179M20.25 15.75l-5.844 3.179M7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0z" />
             </svg>
             <h3 className="text-2xl font-bold mb-3">Complete Solutions</h3>
             <p className="text-gray-600">
@@ -190,13 +215,13 @@ const HomePage: React.FC = () => {
           <p className="text-gray-600">
             Monetize your professional network. Submit a qualified lead for any IT or software requirement you come across. If your lead results in a successful deal on our platform, you earn a commission.
           </p>
-          <a
-            href="#"
+          <button
+            onClick={() => navigate('/post-requirement')}
             className="inline-block bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-semibold py-3 px-8 rounded-full shadow-md transition-colors duration-300"
             aria-label="Submit a Lead"
           >
             Submit a Lead
-          </a>
+          </button>
         </div>
       </section>
 

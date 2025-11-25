@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -9,6 +10,7 @@ import AboutUsPage from './pages/AboutUsPage';
 import FAQPage from './pages/FAQPage';
 import ContactUsPage from './pages/ContactUsPage';
 import SignupPage from './pages/SignupPage';
+import PostRequirementPage from './pages/PostRequirementPage';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -99,6 +101,7 @@ const AppContent: React.FC = () => {
           <Route path="/contact" element={<ContactUsPage />} />
 
           {/* Protected Routes (for specific dashboards) */}
+          <Route path="/post-requirement" element={<ProtectedRoute allowedRoles={[UserRole.USER, UserRole.ADMIN]}><PostRequirementPage /></ProtectedRoute>} />
           <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}><AdminDashboardPage /></ProtectedRoute>} />
           <Route path="/vendor-dashboard" element={<ProtectedRoute allowedRoles={[UserRole.VENDOR]}><VendorDashboardPage /></ProtectedRoute>} />
         </Routes>
