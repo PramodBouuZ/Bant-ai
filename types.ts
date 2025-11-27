@@ -6,12 +6,16 @@ export enum UserRole {
   ADMIN = 'admin',
 }
 
+// User Status Type
+export type UserStatus = 'active' | 'suspended' | 'pending';
+
 // User Profile Interface
 export interface UserProfile {
   id: string;
   email: string;
   username: string;
   role: UserRole;
+  status?: UserStatus; // Added status for user management
   // Add other profile details as needed
 }
 
@@ -91,9 +95,6 @@ export interface BANTParameters {
 }
 
 // Gemini API related types
-// Re-exporting necessary types from @google/genai as they are not globally available.
-// Note: These are example types. The actual types should be imported directly from @google/genai
-// in the service file. This is just for local representation if needed for other components.
 export enum GeminiModality {
   AUDIO = 'AUDIO',
   TEXT = 'TEXT',
@@ -131,7 +132,6 @@ export interface GenerateContentResponse {
       }>;
     };
   }>;
-  // Other properties like functionCalls, etc.
 }
 
 export interface LiveServerMessage {
