@@ -1,5 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
+// Initialize the GoogleGenAI client
+// Per guidelines, we must use process.env.API_KEY directly.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export interface BANTResult {
@@ -13,8 +15,6 @@ export interface BANTResult {
 
 export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> => {
   try {
-    const model = 'gemini-2.5-flash';
-    
     const prompt = `
       You are an expert sales qualifier for an IT Marketplace. 
       Analyze the following user input and extract the BANT parameters (Budget, Authority, Need, Timeframe).
@@ -29,8 +29,9 @@ export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> 
       3. Write a professional summary of the enquiry.
     `;
 
-    const response = await ai.models.generateContent({
-      model: model,
+    // Using gemini-2.5-flash as it is the recommended model for basic text tasks
+    const response = await ai.models.generateContent({ 
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -48,9 +49,12 @@ export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> 
         }
       }
     });
+    
+    // Access text property directly as per @google/genai SDK
+    const text = response.text;
 
-    if (response.text) {
-      return JSON.parse(response.text) as BANTResult;
+    if (text) {
+      return JSON.parse(text) as BANTResult;
     } else {
       throw new Error("No response text from AI");
     }
