@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize the GoogleGenAI client
-// Per guidelines, we must use process.env.API_KEY directly.
+// Initialize the Gemini AI client
+// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export interface BANTResult {
@@ -29,8 +29,7 @@ export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> 
       3. Write a professional summary of the enquiry.
     `;
 
-    // Using gemini-2.5-flash as it is the recommended model for basic text tasks
-    const response = await ai.models.generateContent({ 
+    const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
@@ -49,12 +48,11 @@ export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> 
         }
       }
     });
-    
-    // Access text property directly as per @google/genai SDK
-    const text = response.text;
 
-    if (text) {
-      return JSON.parse(text) as BANTResult;
+    const responseText = response.text;
+
+    if (responseText) {
+      return JSON.parse(responseText) as BANTResult;
     } else {
       throw new Error("No response text from AI");
     }
