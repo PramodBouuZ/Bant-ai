@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +18,8 @@ const LoginPage: React.FC = () => {
     setError(null);
     setLoading(true);
 
-    const success = await login(email, password);
+    // Trim email to remove accidental spaces
+    const success = await login(email.trim(), password);
     setLoading(false);
 
     if (success) {

@@ -1,5 +1,3 @@
-
-
 import { ProductCategory, Product, UserRole, UserProfile, Enquiry, AIRecommendation, Notification } from './types';
 
 export const APP_NAME = 'BANTConfirm';
@@ -29,6 +27,8 @@ export const MOCK_PRODUCTS: Product[] = [
     category: ProductCategory.SIP_TRUNK,
     leads: 0,
     description: 'High-quality SIP trunking solutions for businesses of all sizes, ensuring seamless voice communication.',
+    rating: 4.5,
+    tags: ['Best Seller', 'Voice'],
   },
   {
     id: 'prod-002',
@@ -40,6 +40,8 @@ export const MOCK_PRODUCTS: Product[] = [
     vendorId: 'vendor-001',
     leads: 0,
     description: 'Enterprise-grade cloud storage with advanced security features and flexible pricing per terabyte.',
+    rating: 4.2,
+    tags: ['Enterprise', 'Secure'],
   },
   {
     id: 'prod-003',
@@ -52,6 +54,8 @@ export const MOCK_PRODUCTS: Product[] = [
     vendorId: 'vendor-002',
     leads: 0,
     description: 'A dedicated internet connection offering unparalleled speed and reliability for critical business operations.',
+    rating: 4.8,
+    tags: ['Premium', 'High Speed'],
   },
   {
     id: 'prod-004',
@@ -63,6 +67,8 @@ export const MOCK_PRODUCTS: Product[] = [
     vendorId: 'vendor-003',
     leads: 0,
     description: 'Comprehensive cybersecurity solutions tailored for small and medium businesses to protect against evolving threats.',
+    rating: 4.7,
+    tags: ['SMB', 'Security'],
   },
   {
     id: 'prod-005',
@@ -74,6 +80,8 @@ export const MOCK_PRODUCTS: Product[] = [
     vendorId: 'vendor-001',
     leads: 0,
     description: 'Never worry about IT issues again with our proactive monitoring and rapid response support services.',
+    rating: 4.0,
+    tags: ['Support', '24/7'],
   },
   {
     id: 'prod-006',
@@ -85,6 +93,8 @@ export const MOCK_PRODUCTS: Product[] = [
     vendorId: 'vendor-002',
     leads: 0,
     description: 'Advanced voice communication platforms designed for large enterprises, enhancing productivity and connectivity.',
+    rating: 4.6,
+    tags: ['Enterprise', 'Communication'],
   },
   {
     id: 'prod-007',
@@ -95,6 +105,8 @@ export const MOCK_PRODUCTS: Product[] = [
     category: ProductCategory.CRM_SOFTWARE,
     leads: 0,
     description: 'Essential CRM features for small teams to manage customer relationships and streamline sales processes.',
+    rating: 3.9,
+    tags: ['Startup', 'Software'],
   },
   {
     id: 'prod-008',
@@ -105,6 +117,8 @@ export const MOCK_PRODUCTS: Product[] = [
     category: ProductCategory.WHATSAPP_API,
     leads: 0,
     description: 'Integrate WhatsApp for business communication, enabling automated responses and direct customer engagement.',
+    rating: 4.3,
+    tags: ['API', 'Marketing'],
   },
 ];
 
@@ -123,6 +137,31 @@ export const MOCK_USERS: UserProfile[] = [
   { id: 'user-001', email: 'user@example.com', username: 'StandardUser', role: UserRole.USER },
   { id: 'vendor-001', email: 'vendor@example.com', username: 'TechSolutions Inc.', role: UserRole.VENDOR },
   { id: 'admin-001', email: 'admin@example.com', username: 'AdminMaster', role: UserRole.ADMIN },
+];
+
+// Mock Recommendations
+export const MOCK_RECOMMENDATIONS: AIRecommendation[] = [
+  {
+    id: 'rec-001',
+    userId: 'user-001',
+    product: MOCK_PRODUCTS[0], // SIP Trunk
+    reason: 'Based on your recent search for Voice Solutions',
+    createdAt: new Date(),
+  },
+  {
+    id: 'rec-002',
+    userId: 'user-001',
+    product: MOCK_PRODUCTS[3], // SMB Cybersecurity
+    reason: 'Popular among startups like yours',
+    createdAt: new Date(),
+  },
+  {
+    id: 'rec-003',
+    userId: 'user-001',
+    product: MOCK_PRODUCTS[6], // CRM Software
+    reason: 'Great match for your budget',
+    createdAt: new Date(),
+  },
 ];
 
 // Mock Enquiries

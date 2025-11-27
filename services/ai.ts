@@ -1,26 +1,6 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Helper to get API Key safely across environments
-const getApiKey = () => {
-  // @ts-ignore
-  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEY) {
-    // @ts-ignore
-    return import.meta.env.VITE_API_KEY;
-  }
-  if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-    return process.env.API_KEY;
-  }
-  return '';
-};
-
-const apiKey = getApiKey();
-
-if (!apiKey) {
-  console.warn("Gemini API Key is missing. AI features will not work.");
-}
-
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export interface BANTResult {
   budget: string;
@@ -32,8 +12,6 @@ export interface BANTResult {
 }
 
 export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> => {
-  if (!apiKey) throw new Error("API Key not configured");
-
   try {
     const model = 'gemini-2.5-flash';
     
@@ -43,8 +21,12 @@ export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> 
       
       User Input: "${userInput}"
       
-      If a parameter is not explicitly stated, infer it reasonably or state "Not specified".
-      Also determine the best fitting IT category (e.g., Cloud Storage, SIP Trunk, CRM, etc.) and write a professional summary.
+      Instructions:
+      1. Extract BANT parameters. If not explicitly stated, infer reasonably or state "Not specified".
+      2. **Crucial**: Determine the MOST SPECIFIC IT category possible. Do not use generic terms if specific ones apply. 
+         - Example: Instead of "CRM", specify "CRM Software", "Real Estate CRM", or "WhatsApp CRM API" based on context.
+         - Example: Instead of "Voice", specify "SIP Trunk", "Cloud Telephony", or "Call Center Solution".
+      3. Write a professional summary of the enquiry.
     `;
 
     const response = await ai.models.generateContent({
@@ -60,7 +42,7 @@ export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> 
             need: { type: Type.STRING, description: "The specific technical or business requirement" },
             timeframe: { type: Type.STRING, description: "When they need this implemented" },
             summary: { type: Type.STRING, description: "A professional summary of the enquiry" },
-            category: { type: Type.STRING, description: "The most relevant IT category" }
+            category: { type: Type.STRING, description: "The specific IT category identified" }
           },
           required: ["budget", "authority", "need", "timeframe", "summary", "category"]
         }

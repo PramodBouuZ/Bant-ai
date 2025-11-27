@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +26,8 @@ const SignupPage: React.FC = () => {
       return;
     }
 
-    const success = await signup(email, password, username, role); // Pass username
+    // Trim email to remove accidental spaces
+    const success = await signup(email.trim(), password, username, role); 
     setLoading(false);
 
     if (success) {

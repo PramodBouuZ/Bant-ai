@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { APP_NAME } from '../../constants';
@@ -37,6 +38,7 @@ const Navbar: React.FC = () => {
           
           {isAuthenticated ? (
             <>
+              <Link to="/post-requirement" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium" aria-label="Post Requirement">Post Requirement</Link>
               <Link to={dashboardLink} className="text-gray-700 hover:text-blue-600 transition-colors duration-200" aria-label="Dashboard">Dashboard</Link>
               <button
                 onClick={logout}
@@ -82,6 +84,7 @@ const Navbar: React.FC = () => {
           
           {isAuthenticated ? (
             <>
+              <Link to="/post-requirement" onClick={toggleMobileMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50" aria-label="Post Requirement">Post Requirement</Link>
               <Link to={dashboardLink} onClick={toggleMobileMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50" aria-label="Dashboard">Dashboard</Link>
               <button
                 onClick={() => { logout(); toggleMobileMenu(); }}

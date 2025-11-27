@@ -27,6 +27,8 @@ export interface Product {
   description?: string;
   leads?: number; // Number of leads
   originalPrice?: string; // For showing discounts
+  rating?: number; // 0 to 5
+  tags?: string[]; // e.g., "Best Seller", "New", "Enterprise"
 }
 
 // Product Category Enum
