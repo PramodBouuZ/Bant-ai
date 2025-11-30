@@ -1,15 +1,11 @@
-import { GoogleGenAI, Type } from "@google/genai";
+
+// @ts-ignore
+import { GoogleGenAI, Type } from "https://esm.sh/@google/genai";
 
 // Initialize the Gemini AI client
-// We check if the key exists to prevent crashing, although it should be injected by Vite
-const apiKey = process.env.API_KEY;
-
-if (!apiKey) {
-  console.error("API_KEY is missing. AI features will not work.");
-}
-
-// Initialize AI with the key. If missing during build/runtime, fall back safely to prevent hard crashes.
-const ai = new GoogleGenAI({ apiKey: apiKey || 'dummy-key-to-prevent-crash' });
+// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
+// Use this process.env.API_KEY string directly when initializing the @google/genai client instance.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export interface BANTResult {
   budget: string;
@@ -21,10 +17,6 @@ export interface BANTResult {
 }
 
 export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> => {
-  if (!apiKey) {
-    throw new Error("API Key is missing. Please configure your environment variables.");
-  }
-
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
