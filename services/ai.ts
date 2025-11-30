@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize the Gemini AI client
@@ -9,6 +8,7 @@ if (!apiKey) {
   console.error("API_KEY is missing. AI features will not work.");
 }
 
+// Initialize AI with the key. If missing during build/runtime, fall back safely to prevent hard crashes.
 const ai = new GoogleGenAI({ apiKey: apiKey || 'dummy-key-to-prevent-crash' });
 
 export interface BANTResult {
