@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 interface TooltipProps {
@@ -10,7 +9,7 @@ interface TooltipProps {
 const Tooltip: React.FC<TooltipProps> = ({ text, children, position = 'top' }) => {
   const [isVisible, setIsVisible] = useState(false);
 
-  const positionClasses = {
+  const positionClasses: Record<string, string> = {
     top: 'bottom-full left-1/2 transform -translate-x-1/2 mb-2',
     bottom: 'top-full left-1/2 transform -translate-x-1/2 mt-2',
     left: 'right-full top-1/2 transform -translate-y-1/2 mr-2',
