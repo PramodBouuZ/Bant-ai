@@ -14,8 +14,7 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       sourcemap: true,
       rollupOptions: {
-        // Externalize the CDN import so Vite doesn't try to bundle it
-        external: ['https://esm.sh/@google/genai']
+        // Removed external configuration to allow bundling of @google/genai
       }
     },
     define: {

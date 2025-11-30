@@ -1,6 +1,5 @@
 
-// @ts-ignore
-import { GoogleGenAI, Type } from "https://esm.sh/@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize the Gemini AI client
 // The API key must be obtained exclusively from the environment variable process.env.API_KEY.
