@@ -1,7 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize the Gemini AI client
-// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export interface BANTResult {
@@ -15,7 +14,9 @@ export interface BANTResult {
 
 export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> => {
   try {
-    const prompt = `
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `
       You are an expert sales qualifier for an IT Marketplace. 
       Analyze the following user input and extract the BANT parameters (Budget, Authority, Need, Timeframe).
       
@@ -27,11 +28,7 @@ export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> 
          - Example: Instead of "CRM", specify "CRM Software", "Real Estate CRM", or "WhatsApp CRM API" based on context.
          - Example: Instead of "Voice", specify "SIP Trunk", "Cloud Telephony", or "Call Center Solution".
       3. Write a professional summary of the enquiry.
-    `;
-
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
+    `,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
