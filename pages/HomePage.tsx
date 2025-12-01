@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   MOCK_PRODUCTS, MOCK_CATEGORIES, MOCK_RECOMMENDATIONS
@@ -317,7 +316,8 @@ const HomePage: React.FC = () => {
          </section>
       )}
 
-      <section className="relative rounded-xl shadow-lg mb-12 overflow-hidden min-h-[500px] flex flex-col justify-center bg-gray-900 text-white">
+      {/* Hero Section - Height Increased to avoid text clipping */}
+      <section className="relative rounded-xl shadow-lg mb-12 overflow-hidden min-h-[600px] flex flex-col justify-center bg-gray-900 text-white">
         {HERO_SLIDES.map((slide, index) => (
           <div key={slide.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
              <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgClass} opacity-90`} />
@@ -325,14 +325,17 @@ const HomePage: React.FC = () => {
           </div>
         ))}
         <div className="relative z-20 w-full max-w-4xl mx-auto text-center p-8">
-            <div className="relative h-48 md:h-56 mb-4 overflow-hidden">
+            
+            {/* Height set to h-72 md:h-80 to accommodate text wrapping */}
+            <div className="relative h-72 md:h-80 mb-8 overflow-hidden flex items-center justify-center">
                {HERO_SLIDES.map((slide, index) => (
-                   <div key={slide.id} className={`absolute top-0 left-0 w-full h-full transition-all duration-700 ease-in-out transform flex flex-col justify-center items-center ${index === currentSlide ? 'translate-x-0 opacity-100' : index < currentSlide ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'}`}>
-                        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-4">{slide.title}</h1>
-                        <p className="text-lg md:text-xl opacity-90">{slide.subtitle}</p>
+                   <div key={slide.id} className={`absolute top-0 left-0 w-full h-full transition-all duration-700 ease-in-out transform flex flex-col justify-center items-center px-4 ${index === currentSlide ? 'translate-x-0 opacity-100' : index < currentSlide ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'}`}>
+                        <h1 className="text-3xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-lg">{slide.title}</h1>
+                        <p className="text-base md:text-xl opacity-90 max-w-2xl mx-auto drop-shadow-md">{slide.subtitle}</p>
                    </div>
                ))}
             </div>
+
             <form onSubmit={handleSearch} className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-fade-in delay-200 relative z-30">
               <input type="text" placeholder="Search for services, solutions..." className="w-full sm:w-2/3 md:w-1/2 px-6 py-3 rounded-full border-2 border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 backdrop-blur-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               <Tooltip text="Search the marketplace for vendors and products" position="bottom">
@@ -431,12 +434,12 @@ const HomePage: React.FC = () => {
       <section className="my-16 grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-blue-50 rounded-xl p-8 border border-blue-100 flex flex-col items-start">
            <h2 className="text-2xl font-bold text-gray-900 mb-4">Pay-Per-Success AI Lead Generation</h2>
-           <p className="text-gray-600 mb-6 text-lg leading-relaxed">Join our marketplace and receive AI-qualified leads that are ready for engagement.</p>
+           <p className="text-gray-600 mb-6 text-lg leading-relaxed">Join our marketplace and receive AI-qualified leads that are ready for engagement. You only pay a success fee when you close a deal, making it a risk-free channel for business growth.</p>
            <button onClick={() => navigate('/signup?role=vendor')} className="mt-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">Become a Vendor</button>
         </div>
         <div className="bg-yellow-50 rounded-xl p-8 border border-yellow-100 flex flex-col items-start">
            <h2 className="text-2xl font-bold text-gray-900 mb-4">Earn Up to 10% Commission</h2>
-           <p className="text-gray-600 mb-6 text-lg leading-relaxed">Monetize your professional network. Submit a qualified lead and earn commission.</p>
+           <p className="text-gray-600 mb-6 text-lg leading-relaxed">Monetize your professional network. Submit a qualified lead for any IT or software requirement you come across. If your lead results in a successful deal on our platform, you earn a commission.</p>
            <button onClick={() => navigate('/post-requirement')} className="mt-auto bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors shadow-sm">Submit a Lead</button>
         </div>
       </section>
