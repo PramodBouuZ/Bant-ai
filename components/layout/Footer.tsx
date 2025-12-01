@@ -1,18 +1,20 @@
 
-
 import React from 'react';
-import { APP_NAME, COMPANY_LINKS, PARTNER_LINKS, SOCIAL_LINKS, COLORS } from '../../constants';
+import { COMPANY_LINKS, PARTNER_LINKS, SOCIAL_LINKS } from '../../constants';
+import { useSettings } from '../../contexts/SettingsContext';
 import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
+  const { settings } = useSettings();
+
   return (
     <footer className="bg-blue-900 text-gray-200 py-10 px-4">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* About Section */}
         <div className="space-y-4">
-          <Link to="/" className="text-3xl font-bold text-white flex items-center" aria-label={`${APP_NAME} Home`}>
-            <img src="https://assets-global.website-files.com/62c01991206f74a0678d85f6/62cf9b152d244c062c3e1644_bant-confirm-favicon.png" alt="BANTConfirm Logo" className="h-8 w-8 mr-2" />
-            {APP_NAME}
+          <Link to="/" className="text-3xl font-bold text-white flex items-center" aria-label={`${settings.appName} Home`}>
+            {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-8 w-8 mr-2 object-contain" />}
+            {settings.appName}
           </Link>
           <p className="text-gray-400 text-sm">
             The intelligent B2B marketplace for AI-qualified IT and software leads.
@@ -71,7 +73,7 @@ const Footer: React.FC = () => {
       </div>
 
       <div className="border-t border-gray-700 mt-10 pt-6 text-center text-gray-500 text-sm">
-        &copy; {new Date().getFullYear()} {APP_NAME}. All rights reserved.
+        &copy; {new Date().getFullYear()} {settings.appName}. All rights reserved.
       </div>
     </footer>
   );

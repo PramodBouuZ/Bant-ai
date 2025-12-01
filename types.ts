@@ -26,13 +26,21 @@ export interface Product {
   image: string;
   shortFeatures: string[];
   pricing: string; // e.g., "₹50/TB", "Starting at ₹1,000/mo", "500" for SIP trunk
-  category: ProductCategory;
+  category: ProductCategory | string;
   vendorId?: string; // Optional, if a product is directly associated with a vendor
   description?: string;
   leads?: number; // Number of leads
   originalPrice?: string; // For showing discounts
   rating?: number; // 0 to 5
   tags?: string[]; // e.g., "Best Seller", "New", "Enterprise"
+}
+
+// Site Settings Interface
+export interface SiteSettings {
+  id?: number;
+  logoUrl: string;
+  faviconUrl: string;
+  appName: string;
 }
 
 // Product Category Enum
@@ -108,88 +116,8 @@ export enum GeminiModality {
 
 export interface GenerateContentResponse {
   text?: string;
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{
-        text?: string;
-        inlineData?: {
-          mimeType: string;
-          data: string;
-        };
-      }>;
-    };
-    groundingMetadata?: {
-      groundingChunks?: Array<{
-        web?: {
-          uri: string;
-          title: string;
-        };
-        maps?: {
-          uri: string;
-          title: string;
-          placeAnswerSources?: Array<{
-            reviewSnippets?: Array<{
-              uri: string;
-              title: string;
-            }>;
-          }>;
-        };
-      }>;
-    };
-  }>;
-}
-
-export interface LiveServerMessage {
-  serverContent?: {
-    modelTurn?: {
-      parts: Array<{
-        inlineData: {
-          data: string;
-          mimeType: string;
-        };
-      }>;
-    };
-    outputTranscription?: {
-      text: string;
-      isFinal: boolean;
-    };
-    inputTranscription?: {
-      text: string;
-      isFinal: boolean;
-    };
-    turnComplete?: boolean;
-    interrupted?: boolean;
-  };
-  toolCall?: {
-    functionCalls: Array<{
-      args: Record<string, unknown>;
-      name: string;
-      id: string;
-    }>;
-  };
-}
-
-export interface BlobData {
-  data: string;
-  mimeType: string;
-}
-
-export interface FunctionDeclaration {
-  name: string;
-  parameters: {
-    type: 'OBJECT';
-    description?: string;
-    properties: Record<string, {type: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'ARRAY' | 'OBJECT'; description?: string; items?: {type: 'STRING' | 'NUMBER' | 'BOOLEAN' | 'ARRAY' | 'OBJECT';};}>;
-    required: string[];
-  };
 }
 
 export enum GeminiType {
   STRING = 'STRING',
-  NUMBER = 'NUMBER',
-  INTEGER = 'INTEGER',
-  BOOLEAN = 'BOOLEAN',
-  ARRAY = 'ARRAY',
-  OBJECT = 'OBJECT',
-  NULL = 'NULL',
 }

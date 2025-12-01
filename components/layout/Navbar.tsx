@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { APP_NAME } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import { UserRole } from '../../types';
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, userRole, logout } = useAuth();
+  const { settings } = useSettings();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -24,9 +25,9 @@ const Navbar: React.FC = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-blue-600 flex items-center" aria-label={`${APP_NAME} Home`}>
-          <img src="https://assets-global.website-files.com/62c01991206f74a0678d85f6/62cf9b152d244c062c3e1644_bant-confirm-favicon.png" alt="BANTConfirm Logo" className="h-8 w-8 mr-2" />
-          {APP_NAME}
+        <Link to="/" className="text-2xl font-bold text-blue-600 flex items-center" aria-label={`${settings.appName} Home`}>
+          {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-8 w-8 mr-2 object-contain" />}
+          {settings.appName}
         </Link>
 
         {/* Desktop Navigation */}

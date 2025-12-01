@@ -1,6 +1,8 @@
+
 import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -115,7 +117,9 @@ const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <SettingsProvider>
+          <AppContent />
+        </SettingsProvider>
       </AuthProvider>
     </Router>
   );

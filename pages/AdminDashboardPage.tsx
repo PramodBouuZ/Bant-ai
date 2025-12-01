@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import UserManagementTable from '../components/admin/UserManagementTable';
 import EnquiryManagementTable from '../components/admin/EnquiryManagementTable';
+import ProductManagementTable from '../components/admin/ProductManagementTable';
+import SettingsPanel from '../components/admin/SettingsPanel';
 
 const AdminDashboardPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'enquiries' | 'reports'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'enquiries' | 'products' | 'settings'>('overview');
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -31,7 +33,7 @@ const AdminDashboardPage: React.FC = () => {
             activeTab === 'users' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          User Management
+          Users
         </button>
         <button
           onClick={() => setActiveTab('enquiries')}
@@ -39,15 +41,23 @@ const AdminDashboardPage: React.FC = () => {
             activeTab === 'enquiries' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Enquiries (Pending)
+          Enquiries
         </button>
         <button
-          onClick={() => setActiveTab('reports')}
+          onClick={() => setActiveTab('products')}
           className={`px-4 py-2 font-medium transition-colors whitespace-nowrap ${
-            activeTab === 'reports' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
+            activeTab === 'products' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Analytics & Reports
+          Products
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`px-4 py-2 font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'settings' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Settings
         </button>
       </div>
 
@@ -56,70 +66,54 @@ const AdminDashboardPage: React.FC = () => {
         
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div 
               className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => setActiveTab('users')}
             >
-              <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+              <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
                 <span className="bg-blue-100 p-2 rounded-full mr-3 text-blue-600">👥</span>
-                Manage Users
+                Users
               </h2>
-              <p className="text-gray-600">View user list, approve vendors, and suspend accounts.</p>
             </div>
             
             <div 
               className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => setActiveTab('enquiries')}
             >
-              <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+              <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
                 <span className="bg-yellow-100 p-2 rounded-full mr-3 text-yellow-600">📝</span>
-                Approve Enquiries
+                Enquiries
               </h2>
-              <p className="text-gray-600">Review and approve new AI-qualified enquiries.</p>
             </div>
 
             <div 
               className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setActiveTab('reports')}
+              onClick={() => setActiveTab('products')}
             >
-               <h2 className="text-xl font-semibold text-gray-800 mb-3 flex items-center">
-                <span className="bg-green-100 p-2 rounded-full mr-3 text-green-600">📊</span>
-                View Analytics
+               <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <span className="bg-purple-100 p-2 rounded-full mr-3 text-purple-600">📦</span>
+                Products
               </h2>
-              <p className="text-gray-600">Access system-wide reports and metrics.</p>
+            </div>
+
+             <div 
+              className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => setActiveTab('settings')}
+            >
+               <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <span className="bg-gray-100 p-2 rounded-full mr-3 text-gray-600">⚙️</span>
+                Settings
+              </h2>
             </div>
           </div>
         )}
 
-        {/* User Management Tab */}
-        {activeTab === 'users' && (
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">
-                + Add User Manually
-              </button>
-            </div>
-            <UserManagementTable />
-          </div>
-        )}
-
-        {/* Enquiry Management Tab */}
-        {activeTab === 'enquiries' && (
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">Enquiry Management</h2>
-            </div>
-            <EnquiryManagementTable />
-          </div>
-        )}
-        
-        {activeTab === 'reports' && (
-          <div className="bg-white p-8 rounded-lg shadow-md text-center border-dashed border-2 border-gray-300">
-            <p className="text-gray-500 text-lg">Analytics Dashboard Module Coming Soon...</p>
-          </div>
-        )}
+        {/* Tab Contents */}
+        {activeTab === 'users' && <UserManagementTable />}
+        {activeTab === 'enquiries' && <EnquiryManagementTable />}
+        {activeTab === 'products' && <ProductManagementTable />}
+        {activeTab === 'settings' && <SettingsPanel />}
 
       </div>
     </div>
