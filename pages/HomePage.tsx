@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   MOCK_PRODUCTS, MOCK_CATEGORIES, MOCK_RECOMMENDATIONS
 } from '../constants';
-import { ProductCategory, Product, Category } from '../types';
+import { ProductCategory, Product, Category, TrustedVendor } from '../types';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
@@ -23,13 +23,13 @@ const HomePage: React.FC = () => {
 
   // --- Search & Filter State ---
   const [searchTerm, setSearchTerm] = useState('');
-  // All available products (DB + Mock fallback if empty)
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   
-  // Category State
+  // Category & Vendor State
   const [categories, setCategories] = useState<Category[]>([]);
+  const [trustedVendors, setTrustedVendors] = useState<TrustedVendor[]>([]);
   
   // Filter States
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -50,7 +50,6 @@ const HomePage: React.FC = () => {
 
   const allTags: string[] = Array.from(new Set(allProducts.flatMap(p => p.tags || [])));
 
-  // Hero Slides Data
   const HERO_SLIDES = [
     {
       id: 1,
@@ -75,7 +74,6 @@ const HomePage: React.FC = () => {
     }
   ];
 
-  // Auto-scroll Hero Slider (5 seconds)
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
@@ -83,18 +81,15 @@ const HomePage: React.FC = () => {
     return () => clearInterval(timer);
   }, [HERO_SLIDES.length]);
 
-  // --- Fetch Products and Categories ---
   useEffect(() => {
     const fetchData = async () => {
       setIsLoadingProducts(true);
       try {
-        // Fetch Products
+        // Products
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
           .order('created_at', { ascending: false });
-
-        if (productError) throw productError;
 
         if (productData && productData.length > 0) {
           const dbProducts: Product[] = productData.map((p: any) => ({
@@ -111,13 +106,11 @@ const HomePage: React.FC = () => {
           }));
           setAllProducts(dbProducts);
         } else {
-          // Fallback if DB is empty
-          console.log("No products in DB, using mocks.");
           setAllProducts(MOCK_PRODUCTS);
         }
 
-        // Fetch Categories
-        const { data: catData, error: catError } = await supabase
+        // Categories
+        const { data: catData } = await supabase
             .from('categories')
             .select('*')
             .order('name', { ascending: true });
@@ -125,7 +118,6 @@ const HomePage: React.FC = () => {
         if (catData && catData.length > 0) {
             setCategories(catData);
         } else {
-            // Transform Mock Categories to match Category Interface
             const mockCats: Category[] = MOCK_CATEGORIES.map((mc, idx) => ({
                 id: `mock-cat-${idx}`,
                 name: mc.name,
@@ -134,15 +126,19 @@ const HomePage: React.FC = () => {
             setCategories(mockCats);
         }
 
+        // Trusted Vendors
+        const { data: vendorData } = await supabase
+            .from('trusted_vendors')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (vendorData) {
+            setTrustedVendors(vendorData.map((v:any) => ({ id: v.id, name: v.name, logoUrl: v.logo_url })));
+        }
+
       } catch (err) {
         console.error("Failed to fetch data:", err);
         setAllProducts(MOCK_PRODUCTS);
-        const mockCats: Category[] = MOCK_CATEGORIES.map((mc, idx) => ({
-            id: `mock-cat-${idx}`,
-            name: mc.name,
-            icon: mc.icon
-        }));
-        setCategories(mockCats);
       } finally {
         setIsLoadingProducts(false);
       }
@@ -158,7 +154,6 @@ const HomePage: React.FC = () => {
     }
   }, [location]);
 
-  // --- Filtering Logic ---
   useEffect(() => {
     let result = allProducts;
 
@@ -265,7 +260,6 @@ const HomePage: React.FC = () => {
          </div>
       )}
 
-      {/* User Dashboard Analytics Section */}
       {isAuthenticated && (
         <section className="mb-12 animate-fade-in">
           <div className="flex justify-between items-center mb-6">
@@ -274,12 +268,7 @@ const HomePage: React.FC = () => {
                <p className="text-gray-600">Here's what's happening with your account.</p>
             </div>
             <Tooltip text="View your complete enquiry history" position="left">
-              <button 
-                onClick={() => {}} 
-                className="text-blue-600 font-medium hover:underline text-sm"
-              >
-                View History
-              </button>
+              <button onClick={() => {}} className="text-blue-600 font-medium hover:underline text-sm">View History</button>
             </Tooltip>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -289,9 +278,7 @@ const HomePage: React.FC = () => {
                    <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Total Enquiries</p>
                    <h3 className="text-3xl font-bold text-gray-800 mt-1">{userAnalytics.totalEnquiries}</h3>
                 </div>
-                <div className="p-2 bg-blue-100 rounded-full text-blue-600">
-                  📄
-                </div>
+                <div className="p-2 bg-blue-100 rounded-full text-blue-600">📄</div>
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-400">
@@ -300,9 +287,7 @@ const HomePage: React.FC = () => {
                    <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Vendors Assigned</p>
                    <h3 className="text-3xl font-bold text-gray-800 mt-1">{userAnalytics.vendorsAssigned}</h3>
                 </div>
-                <div className="p-2 bg-yellow-100 rounded-full text-yellow-600">
-                  🤝
-                </div>
+                <div className="p-2 bg-yellow-100 rounded-full text-yellow-600">🤝</div>
               </div>
             </div>
              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
@@ -311,28 +296,20 @@ const HomePage: React.FC = () => {
                    <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">Pending Quotes</p>
                    <h3 className="text-3xl font-bold text-gray-800 mt-1">{userAnalytics.pendingQuotations}</h3>
                 </div>
-                <div className="p-2 bg-green-100 rounded-full text-green-600">
-                  💬
-                </div>
+                <div className="p-2 bg-green-100 rounded-full text-green-600">💬</div>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* AI Recommendations Section */}
       {isAuthenticated && MOCK_RECOMMENDATIONS && MOCK_RECOMMENDATIONS.length > 0 && (
          <section className="mb-12 animate-fade-in delay-100">
-           <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-             <span className="mr-2">✨</span> Recommended for You
-           </h2>
+           <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center"><span className="mr-2">✨</span> Recommended for You</h2>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
              {MOCK_RECOMMENDATIONS.map(rec => (
                <div key={rec.id} className="relative">
-                 {/* Badge for AI Reason */}
-                 <div className="absolute -top-3 left-4 bg-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-md z-10">
-                   {rec.reason}
-                 </div>
+                 <div className="absolute -top-3 left-4 bg-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-md z-10">{rec.reason}</div>
                  {renderProductCard(rec.product)}
                </div>
              ))}
@@ -340,107 +317,47 @@ const HomePage: React.FC = () => {
          </section>
       )}
 
-      {/* Hero Section Carousel */}
       <section className="relative rounded-xl shadow-lg mb-12 overflow-hidden min-h-[500px] flex flex-col justify-center bg-gray-900 text-white">
-        
-        {/* Animated Backgrounds */}
         {HERO_SLIDES.map((slide, index) => (
-          <div 
-            key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-          >
+          <div key={slide.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
              <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgClass} opacity-90`} />
              <div className="absolute inset-0 opacity-20 bg-cover bg-center" style={{ backgroundImage: `url(${slide.imgUrl})` }} />
           </div>
         ))}
-
-        {/* Content Overlay */}
         <div className="relative z-20 w-full max-w-4xl mx-auto text-center p-8">
-            
-            {/* Horizontally Scrollable Text Container */}
             <div className="relative h-48 md:h-56 mb-4 overflow-hidden">
                {HERO_SLIDES.map((slide, index) => (
-                   <div 
-                      key={slide.id} 
-                      className={`absolute top-0 left-0 w-full h-full transition-all duration-700 ease-in-out transform flex flex-col justify-center items-center ${
-                          index === currentSlide 
-                            ? 'translate-x-0 opacity-100' 
-                            : index < currentSlide 
-                              ? '-translate-x-full opacity-0' 
-                              : 'translate-x-full opacity-0'
-                      }`}
-                   >
-                        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-4">
-                          {slide.title}
-                        </h1>
-                        <p className="text-lg md:text-xl opacity-90">
-                          {slide.subtitle}
-                        </p>
+                   <div key={slide.id} className={`absolute top-0 left-0 w-full h-full transition-all duration-700 ease-in-out transform flex flex-col justify-center items-center ${index === currentSlide ? 'translate-x-0 opacity-100' : index < currentSlide ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'}`}>
+                        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-4">{slide.title}</h1>
+                        <p className="text-lg md:text-xl opacity-90">{slide.subtitle}</p>
                    </div>
                ))}
             </div>
-
-            {/* Static Interactive Elements */}
             <form onSubmit={handleSearch} className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-fade-in delay-200 relative z-30">
-              <input
-                type="text"
-                placeholder="Search for services, solutions..."
-                className="w-full sm:w-2/3 md:w-1/2 px-6 py-3 rounded-full border-2 border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 backdrop-blur-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                aria-label="Search for services or solutions"
-              />
+              <input type="text" placeholder="Search for services, solutions..." className="w-full sm:w-2/3 md:w-1/2 px-6 py-3 rounded-full border-2 border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 backdrop-blur-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               <Tooltip text="Search the marketplace for vendors and products" position="bottom">
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto px-8 py-3 bg-yellow-400 text-blue-900 font-bold rounded-full hover:bg-yellow-300 transition-colors duration-300 shadow-lg"
-                  aria-label="Search"
-                >
-                  Search
-                </button>
+                <button type="submit" className="w-full sm:w-auto px-8 py-3 bg-yellow-400 text-blue-900 font-bold rounded-full hover:bg-yellow-300 transition-colors duration-300 shadow-lg">Search</button>
               </Tooltip>
             </form>
-            
             <div className="mt-8 flex justify-center gap-4 relative z-30">
               <Tooltip text="Use AI to automatically qualify your needs using BANT parameters" position="bottom">
-                <button 
-                  onClick={() => navigate('/post-requirement')}
-                  className="bg-white text-blue-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1"
-                >
-                  ✨ Post Requirement with AI
-                </button>
+                <button onClick={() => navigate('/post-requirement')} className="bg-white text-blue-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1">✨ Post Requirement with AI</button>
               </Tooltip>
             </div>
         </div>
-
-        {/* Carousel Indicators */}
         <div className="absolute bottom-4 left-0 right-0 z-30 flex justify-center space-x-2">
             {HERO_SLIDES.map((_, idx) => (
-                <button 
-                  key={idx}
-                  onClick={() => setCurrentSlide(idx)} 
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`} 
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
+                <button key={idx} onClick={() => setCurrentSlide(idx)} className={`w-3 h-3 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`} />
             ))}
         </div>
       </section>
 
-      {/* Popular Categories (Quick Access) - Scrollable */}
       <section className="my-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Explore by Category</h2>
         <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
           {categories.map((category) => (
             <Tooltip key={category.id} text={`Filter by ${category.name}`} position="top">
-              <div
-                onClick={() => {
-                  setSelectedCategories([category.name]);
-                  document.getElementById('marketplace-section')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200 flex-shrink-0 w-40"
-                role="button"
-                tabIndex={0}
-              >
+              <div onClick={() => { setSelectedCategories([category.name]); document.getElementById('marketplace-section')?.scrollIntoView({ behavior: 'smooth' }); }} className="bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200 flex-shrink-0 w-40">
                 <div className="text-3xl mb-2">{category.icon}</div>
                 <h3 className="text-xs font-semibold text-gray-700 whitespace-normal">{category.name}</h3>
               </div>
@@ -449,122 +366,53 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Main Marketplace Section with Sidebar */}
       <section id="marketplace-section" className="my-12 scroll-mt-20">
         <div className="flex flex-col md:flex-row gap-8">
-          
-          <button 
-            className="md:hidden bg-blue-600 text-white py-2 px-4 rounded mb-4 flex justify-between items-center"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-          >
-            <span>Filters</span>
-            <span>{isFilterOpen ? '▲' : '▼'}</span>
-          </button>
-
-          {/* Sidebar Filters */}
+          <button className="md:hidden bg-blue-600 text-white py-2 px-4 rounded mb-4 flex justify-between items-center" onClick={() => setIsFilterOpen(!isFilterOpen)}><span>Filters</span><span>{isFilterOpen ? '▲' : '▼'}</span></button>
           <aside className={`w-full md:w-1/4 bg-white p-6 rounded-lg shadow-sm h-fit ${isFilterOpen ? 'block' : 'hidden md:block'}`}>
             <div className="flex justify-between items-center mb-6">
                <h3 className="text-xl font-bold text-gray-800">Filters</h3>
                <Tooltip text="Clear all active filters" position="right">
-                 <button 
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategories([]);
-                    setPriceRange({ min: 0, max: 10000 });
-                    setMinRating(0);
-                    setSelectedTags([]);
-                  }}
-                  className="text-xs text-blue-600 hover:underline"
-                 >
-                   Reset All
-                 </button>
+                 <button onClick={() => { setSearchTerm(''); setSelectedCategories([]); setPriceRange({ min: 0, max: 10000 }); setMinRating(0); setSelectedTags([]); }} className="text-xs text-blue-600 hover:underline">Reset All</button>
                </Tooltip>
             </div>
-
-            {/* Price Filter */}
             <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <h4 className="font-semibold text-gray-700">Price Range (₹)</h4>
-                <Tooltip text="Filter products within your monthly budget" position="right">
-                  <span className="text-gray-400 cursor-help text-xs">ⓘ</span>
-                </Tooltip>
-              </div>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="number" 
-                  value={priceRange.min}
-                  onChange={(e) => setPriceRange({...priceRange, min: Number(e.target.value)})}
-                  className="w-full border rounded px-2 py-1 text-sm"
-                  placeholder="Min"
-                  aria-label="Minimum Price"
-                />
+              <h4 className="font-semibold text-gray-700">Price Range (₹)</h4>
+              <div className="flex items-center gap-2 mt-2">
+                <input type="number" value={priceRange.min} onChange={(e) => setPriceRange({...priceRange, min: Number(e.target.value)})} className="w-full border rounded px-2 py-1 text-sm" placeholder="Min" />
                 <span className="text-gray-400">-</span>
-                <input 
-                  type="number" 
-                  value={priceRange.max}
-                  onChange={(e) => setPriceRange({...priceRange, max: Number(e.target.value)})}
-                  className="w-full border rounded px-2 py-1 text-sm"
-                  placeholder="Max"
-                  aria-label="Maximum Price"
-                />
+                <input type="number" value={priceRange.max} onChange={(e) => setPriceRange({...priceRange, max: Number(e.target.value)})} className="w-full border rounded px-2 py-1 text-sm" placeholder="Max" />
               </div>
             </div>
-
-            {/* Categories Filter */}
             <div className="mb-6">
               <h4 className="font-semibold text-gray-700 mb-3">Categories</h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {categories.map(cat => (
                   <label key={cat.id} className="flex items-center space-x-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedCategories.includes(cat.name)}
-                      onChange={() => toggleCategory(cat.name)}
-                      className="rounded text-blue-600 focus:ring-blue-500"
-                    />
+                    <input type="checkbox" checked={selectedCategories.includes(cat.name)} onChange={() => toggleCategory(cat.name)} className="rounded text-blue-600 focus:ring-blue-500" />
                     <span className="text-sm text-gray-600">{cat.name}</span>
                   </label>
                 ))}
               </div>
             </div>
-
-            {/* Tags Filter */}
             <div className="mb-6">
-              <h4 className="font-semibold text-gray-700 mb-3">Tags & Features</h4>
+              <h4 className="font-semibold text-gray-700 mb-3">Tags</h4>
               <div className="flex flex-wrap gap-2">
                 {allTags.map(tag => (
                   <Tooltip key={tag} text={`Show products tagged with "${tag}"`} position="top">
-                    <button
-                      onClick={() => toggleTag(tag)}
-                      className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                        selectedTags.includes(tag) 
-                          ? 'bg-blue-100 border-blue-200 text-blue-700' 
-                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      {tag}
-                    </button>
+                    <button onClick={() => toggleTag(tag)} className={`text-xs px-3 py-1 rounded-full border transition-colors ${selectedTags.includes(tag) ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}>{tag}</button>
                   </Tooltip>
                 ))}
               </div>
             </div>
           </aside>
-
-          {/* Product Grid */}
           <div className="flex-1">
              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {searchTerm ? `Results for "${searchTerm}"` : 'Marketplace'}
-                </h2>
-                <span className="text-gray-500 text-sm">
-                  Showing {filteredProducts.length} results
-                </span>
+                <h2 className="text-2xl font-bold text-gray-800">{searchTerm ? `Results for "${searchTerm}"` : 'Marketplace'}</h2>
+                <span className="text-gray-500 text-sm">Showing {filteredProducts.length} results</span>
              </div>
-
              {isLoadingProducts ? (
-                 <div className="flex justify-center p-12">
-                     <LoadingSpinner size="lg" />
-                 </div>
+                 <div className="flex justify-center p-12"><LoadingSpinner size="lg" /></div>
              ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredProducts.map(renderProductCard)}
@@ -574,130 +422,87 @@ const HomePage: React.FC = () => {
                  <div className="text-4xl mb-4">🔍</div>
                  <h3 className="text-lg font-semibold text-gray-700">No products found</h3>
                  <p className="text-gray-500">Try adjusting your filters or search term.</p>
-                 <button 
-                   onClick={() => {
-                     setSearchTerm('');
-                     setSelectedCategories([]);
-                     setPriceRange({ min: 0, max: 10000 });
-                     setMinRating(0);
-                     setSelectedTags([]);
-                   }}
-                   className="mt-4 text-blue-600 font-medium hover:underline"
-                 >
-                   Clear all filters
-                 </button>
                </div>
              )}
           </div>
         </div>
       </section>
 
-      {/* Value Propositions Section (Added Back) */}
       <section className="my-16 grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-blue-50 rounded-xl p-8 border border-blue-100 flex flex-col items-start">
            <h2 className="text-2xl font-bold text-gray-900 mb-4">Pay-Per-Success AI Lead Generation</h2>
-           <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-             Join our marketplace and receive AI-qualified leads that are ready for engagement. You only pay a success fee when you close a deal, making it a risk-free channel for business growth.
-           </p>
-           <button 
-             onClick={() => navigate('/signup?role=vendor')} 
-             className="mt-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-           >
-             Become a Vendor
-           </button>
+           <p className="text-gray-600 mb-6 text-lg leading-relaxed">Join our marketplace and receive AI-qualified leads that are ready for engagement.</p>
+           <button onClick={() => navigate('/signup?role=vendor')} className="mt-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">Become a Vendor</button>
         </div>
-
         <div className="bg-yellow-50 rounded-xl p-8 border border-yellow-100 flex flex-col items-start">
            <h2 className="text-2xl font-bold text-gray-900 mb-4">Earn Up to 10% Commission</h2>
-           <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-             Monetize your professional network. Submit a qualified lead for any IT or software requirement you come across. If your lead results in a successful deal on our platform, you earn a commission.
-           </p>
-           <button 
-             onClick={() => navigate('/post-requirement')} 
-             className="mt-auto bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors shadow-sm"
-           >
-             Submit a Lead
-           </button>
+           <p className="text-gray-600 mb-6 text-lg leading-relaxed">Monetize your professional network. Submit a qualified lead and earn commission.</p>
+           <button onClick={() => navigate('/post-requirement')} className="mt-auto bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors shadow-sm">Submit a Lead</button>
         </div>
       </section>
 
-      {/* Why Choose BANTConfirm Section (Added Back) */}
       <section className="my-16">
         <h2 className="text-3xl font-bold text-gray-800 mb-10 text-center">Why Choose BANTConfirm?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-              🎯
-            </div>
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🎯</div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">AI-Powered Precision</h3>
             <p className="text-gray-600 text-sm">Our BANT algorithms ensure 99% accuracy in lead qualification, saving you time.</p>
           </div>
-
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-              ✅
-            </div>
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✅</div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">Verified Vendors</h3>
             <p className="text-gray-600 text-sm">Access a curated network of top-tier, enterprise-grade technology providers.</p>
           </div>
-
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-              ⚡
-            </div>
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">⚡</div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">Fast Turnaround</h3>
             <p className="text-gray-600 text-sm">Receive comprehensive quotations within 24 hours of posting your requirement.</p>
           </div>
-
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-              🔒
-            </div>
+            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🔒</div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">Secure & Private</h3>
             <p className="text-gray-600 text-sm">Your data and requirements are encrypted and shared only with matched vendors.</p>
           </div>
-
         </div>
       </section>
 
-      {/* Support Section (Added Back) */}
       <section className="my-16 flex justify-center">
          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-3xl w-full flex flex-col md:flex-row items-center gap-8 border border-gray-100">
             <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1534330207526-9e44f44abc27?auto=format&fit=crop&q=80&w=150&h=150" 
-                alt="Support Team" 
-                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-              />
+              <img src="https://images.unsplash.com/photo-1534330207526-9e44f44abc27?auto=format&fit=crop&q=80&w=150&h=150" alt="Support Team" className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" />
               <span className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></span>
             </div>
             <div className="text-center md:text-left flex-1">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Support 24/7</h2>
               <p className="text-gray-600 mb-6 text-lg">Wanna talk? Send us a message regarding any product or service.</p>
-              <a 
-                href="mailto:support@bantconfirm.com"
-                className="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-md w-full md:w-auto text-center"
-              >
-                support@bantconfirm.com
-              </a>
+              <a href="mailto:support@bantconfirm.com" className="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-md w-full md:w-auto text-center">support@bantconfirm.com</a>
             </div>
          </div>
       </section>
 
-      {/* Trusted Vendors Header (Added Back) */}
       <section className="my-16 text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-8">Trusted Vendors</h2>
         <div className="flex flex-wrap justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-             <div className="text-2xl font-bold text-gray-400">Microsoft</div>
-             <div className="text-2xl font-bold text-gray-400">Google Cloud</div>
-             <div className="text-2xl font-bold text-gray-400">AWS</div>
-             <div className="text-2xl font-bold text-gray-400">Salesforce</div>
-             <div className="text-2xl font-bold text-gray-400">Zoho</div>
+             {/* If no custom vendors, show default hardcoded names as text */}
+             {trustedVendors.length === 0 ? (
+               <>
+                <div className="text-2xl font-bold text-gray-400">Microsoft</div>
+                <div className="text-2xl font-bold text-gray-400">Google Cloud</div>
+                <div className="text-2xl font-bold text-gray-400">AWS</div>
+                <div className="text-2xl font-bold text-gray-400">Salesforce</div>
+                <div className="text-2xl font-bold text-gray-400">Zoho</div>
+               </>
+             ) : (
+               trustedVendors.map(vendor => (
+                 <div key={vendor.id} className="flex flex-col items-center group">
+                    <img src={vendor.logoUrl} alt={vendor.name} className="h-12 object-contain grayscale group-hover:grayscale-0 transition-all" title={vendor.name} />
+                 </div>
+               ))
+             )}
         </div>
       </section>
 
-      {/* Render Modal if a product is selected */}
       <Modal isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} title="Product Details">
         {selectedProduct && <ProductQuickView product={selectedProduct} />}
       </Modal>

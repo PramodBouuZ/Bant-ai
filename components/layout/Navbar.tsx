@@ -26,8 +26,8 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold text-blue-600 flex items-center" aria-label={`${settings.appName} Home`}>
-          {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-8 w-8 mr-2 object-contain" />}
-          {settings.appName}
+          {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-10 w-auto mr-2 object-contain" />}
+          {settings.showAppName && settings.appName}
         </Link>
 
         {/* Desktop Navigation */}

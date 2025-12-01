@@ -13,7 +13,8 @@ interface SettingsContextType {
 const defaultSettings: SiteSettings = {
   logoUrl: 'https://assets-global.website-files.com/62c01991206f74a0678d85f6/62cf9b152d244c062c3e1644_bant-confirm-favicon.png',
   faviconUrl: '',
-  appName: APP_NAME
+  appName: APP_NAME,
+  showAppName: true
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -35,7 +36,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           id: data.id,
           logoUrl: data.logo_url || defaultSettings.logoUrl,
           faviconUrl: data.favicon_url || '',
-          appName: data.app_name || defaultSettings.appName
+          appName: data.app_name || defaultSettings.appName,
+          showAppName: data.show_app_name ?? true // Default to true if null
         });
         
         // Update document title dynamically
@@ -64,7 +66,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const payload = {
           logo_url: newSettings.logoUrl,
           favicon_url: newSettings.faviconUrl,
-          app_name: newSettings.appName
+          app_name: newSettings.appName,
+          show_app_name: newSettings.showAppName
       };
 
       if (settings.id) {

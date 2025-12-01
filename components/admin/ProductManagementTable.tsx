@@ -79,6 +79,31 @@ const ProductManagementTable: React.FC = () => {
     }
   };
 
+  const convertBase64 = (file: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => resolve(fileReader.result as string);
+      fileReader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 500 * 1024) { // 500KB Limit
+        alert("Image size too large (Max 500KB)");
+        return;
+      }
+      try {
+        const base64 = await convertBase64(file);
+        setCurrentProduct(prev => ({ ...prev, image: base64 }));
+      } catch (err) {
+        alert("Failed to process image");
+      }
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -90,27 +115,19 @@ const ProductManagementTable: React.FC = () => {
         description: currentProduct.description,
         short_features: currentProduct.shortFeatures,
         tags: currentProduct.tags,
-        // Default rating for new products
         rating: currentProduct.rating || 4.5 
       };
 
       if (currentProduct.id) {
-        // Update
-        const { error } = await supabase
-          .from('products')
-          .update(payload)
-          .eq('id', currentProduct.id);
+        const { error } = await supabase.from('products').update(payload).eq('id', currentProduct.id);
         if (error) throw error;
       } else {
-        // Create
-        const { error } = await supabase
-          .from('products')
-          .insert([payload]);
+        const { error } = await supabase.from('products').insert([payload]);
         if (error) throw error;
       }
       
       setIsModalOpen(false);
-      fetchProducts(); // Refresh list
+      fetchProducts();
     } catch (err: any) {
       console.error('Save failed:', err);
       alert('Failed to save product: ' + err.message);
@@ -173,7 +190,6 @@ const ProductManagementTable: React.FC = () => {
         </table>
       </div>
 
-      {/* Edit/Create Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={currentProduct.id ? "Edit Product" : "Add New Product"}>
         <div className="p-4 space-y-4">
           <div>
@@ -211,15 +227,24 @@ const ProductManagementTable: React.FC = () => {
           </div>
 
           <div>
-             <label className="block text-sm font-medium text-gray-700">Image URL</label>
-             <input 
-              type="text" 
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              placeholder="https://..."
-              value={currentProduct.image || ''}
-              onChange={e => setCurrentProduct({...currentProduct, image: e.target.value})}
-            />
-            <p className="text-xs text-gray-500 mt-1">Paste a public image URL here.</p>
+             <label className="block text-sm font-medium text-gray-700">Product Image</label>
+             <div className="flex items-center space-x-4">
+               {currentProduct.image && (
+                 <img src={currentProduct.image} alt="Preview" className="h-12 w-12 object-cover rounded border" />
+               )}
+               <input 
+                type="file" 
+                accept="image/*"
+                className="mt-1 block w-full text-sm text-slate-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
+                onChange={handleImageUpload}
+              />
+             </div>
+             <p className="text-xs text-gray-500 mt-1">Upload PNG/JPG (Max 500KB)</p>
           </div>
 
           <div>

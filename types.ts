@@ -50,6 +50,14 @@ export interface SiteSettings {
   logoUrl: string;
   faviconUrl: string;
   appName: string;
+  showAppName: boolean; // New field
+}
+
+// Trusted Vendor Interface
+export interface TrustedVendor {
+  id: string;
+  name: string;
+  logoUrl: string;
 }
 
 // Product Category Enum
