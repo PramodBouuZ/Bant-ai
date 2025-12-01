@@ -9,7 +9,7 @@ interface AuthContextType {
   userRole: UserRole | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, username: string, role: UserRole) => Promise<boolean>;
+  signup: (email: string, password: string, username: string, role: UserRole, mobile?: string, companyName?: string, location?: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -40,7 +40,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (profile) {
             setIsAuthenticated(true);
-            setUserProfile(profile as UserProfile);
+            const user: UserProfile = {
+              id: profile.id,
+              email: profile.email,
+              username: profile.username,
+              role: profile.role as UserRole,
+              status: profile.status,
+              mobile: profile.mobile,
+              companyName: profile.company_name,
+              location: profile.location
+            };
+            setUserProfile(user);
             setUserRole(profile.role as UserRole);
           } else {
              console.error('User authenticated but profile not found in public table.');
@@ -51,7 +61,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                  email: session.user.email || '',
                  username: session.user.user_metadata?.username || 'User',
                  role: session.user.user_metadata?.role || UserRole.USER,
-                 status: 'active'
+                 status: 'active',
+                 mobile: session.user.user_metadata?.mobile,
+                 companyName: session.user.user_metadata?.companyName,
+                 location: session.user.user_metadata?.location
              };
              setUserProfile(fallback);
              setUserRole(fallback.role);
@@ -101,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (email: string, password: string, username: string, role: UserRole): Promise<boolean> => {
+  const signup = async (email: string, password: string, username: string, role: UserRole, mobile?: string, companyName?: string, location?: string): Promise<boolean> => {
     setLoading(true);
     try {
         // We pass metadata so the SQL Trigger can pick it up and insert into public.users
@@ -109,7 +122,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email,
             password,
             options: { 
-                data: { username, role } 
+                data: { 
+                  username, 
+                  role,
+                  mobile,
+                  companyName,
+                  location
+                } 
             }
         });
         

@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { qualifyLeadWithAI, BANTResult } from '../services/ai';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,6 +15,14 @@ const PostRequirementPage: React.FC = () => {
   
   const { userProfile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check if we navigated here with a product name (e.g., from "Get Quote")
+    if (location.state && location.state.productName) {
+      setInput(`I am interested in getting a quote for ${location.state.productName}. My requirements are: `);
+    }
+  }, [location]);
 
   const handleAnalyze = async () => {
     if (!input.trim()) return;

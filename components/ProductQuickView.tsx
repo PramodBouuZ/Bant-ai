@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Product } from '../types';
 import { MOCK_USERS } from '../constants';
 
@@ -9,8 +10,13 @@ interface ProductQuickViewProps {
 
 const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'features' | 'vendor'>('overview');
+  const navigate = useNavigate();
 
   const vendor = MOCK_USERS.find(u => u.id === product.vendorId);
+
+  const handleGetQuote = () => {
+    navigate('/post-requirement', { state: { productName: product.name } });
+  };
 
   return (
     <div>
@@ -159,7 +165,10 @@ const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product }) => {
 
       {/* Footer Actions */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-        <button className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-2 px-6 rounded-md shadow transition-colors">
+        <button 
+          onClick={handleGetQuote}
+          className="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold py-2 px-6 rounded-md shadow transition-colors"
+        >
           Get Quote
         </button>
       </div>

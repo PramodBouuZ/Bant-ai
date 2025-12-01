@@ -15,8 +15,10 @@ export interface UserProfile {
   email: string;
   username: string;
   role: UserRole;
-  status?: UserStatus; // Added status for user management
-  // Add other profile details as needed
+  status?: UserStatus;
+  mobile?: string;
+  companyName?: string;
+  location?: string;
 }
 
 // Product Interface
@@ -76,6 +78,9 @@ export interface Enquiry {
   user?: {
     username: string;
     email: string;
+    mobile?: string;
+    company_name?: string;
+    location?: string;
   };
 }
 

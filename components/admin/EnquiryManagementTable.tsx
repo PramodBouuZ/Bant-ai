@@ -32,7 +32,10 @@ const EnquiryManagementTable: React.FC = () => {
           *,
           users:user_id (
             username,
-            email
+            email,
+            mobile,
+            company_name,
+            location
           )
         `)
         .order('created_at', { ascending: false });
@@ -72,7 +75,8 @@ const EnquiryManagementTable: React.FC = () => {
         email: v.email,
         username: v.username,
         role: UserRole.VENDOR,
-        status: v.status
+        status: v.status,
+        companyName: v.company_name
       }));
 
       setVendors(mappedVendors);
@@ -121,63 +125,106 @@ const EnquiryManagementTable: React.FC = () => {
     }
   };
 
+  const downloadCSV = () => {
+    if (enquiries.length === 0) return;
+
+    const headers = ["EnquiryID", "Date", "UserName", "UserEmail", "Mobile", "Company", "Category", "Need", "Budget", "Authority", "Timeframe", "Status"];
+    const rows = enquiries.map(e => [
+        e.id,
+        e.createdAt.toLocaleDateString(),
+        e.user?.username || '',
+        e.user?.email || '',
+        e.user?.mobile || '',
+        e.user?.company_name || '',
+        e.category,
+        `"${e.need.replace(/"/g, '""')}"`, // Escape quotes
+        e.budget,
+        e.authority,
+        e.timeframe,
+        e.status
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+        + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+        
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "enquiries_data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) return <div className="flex justify-center p-8"><LoadingSpinner /></div>;
   if (error) return <div className="text-red-600 p-4 bg-red-50 rounded border border-red-200">{error}</div>;
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User / Contact</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requirement</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {enquiries.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">No enquiries found.</td>
-                </tr>
-              ) : (
-                enquiries.map((enquiry) => (
-                  <tr key={enquiry.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {enquiry.createdAt.toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{enquiry.user?.username || 'Unknown User'}</div>
-                      <div className="text-sm text-gray-500">{enquiry.user?.email}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 font-medium">{enquiry.category}</div>
-                      <div className="text-xs text-gray-500 truncate max-w-xs">{enquiry.need}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${enquiry.status === 'assigned' ? 'bg-green-100 text-green-800' : 
-                          enquiry.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                          'bg-gray-100 text-gray-800'}`}>
-                        {enquiry.status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button 
-                        onClick={() => handleOpenAssignModal(enquiry)}
-                        className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md border border-blue-200"
-                      >
-                        {enquiry.status === 'assigned' ? 'Manage' : 'View & Assign'}
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={downloadCSV}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow flex items-center"
+        >
+          <span className="mr-2">⬇️</span> Download Enquiries CSV
+        </button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
+        <div className="min-w-full inline-block align-middle">
+            <div className="overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User / Contact</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requirement</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                    {enquiries.length === 0 ? (
+                        <tr>
+                        <td colSpan={5} className="px-6 py-4 text-center text-gray-500">No enquiries found.</td>
+                        </tr>
+                    ) : (
+                        enquiries.map((enquiry) => (
+                        <tr key={enquiry.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {enquiry.createdAt.toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{enquiry.user?.username || 'Unknown User'}</div>
+                            <div className="text-sm text-gray-500">{enquiry.user?.email}</div>
+                            {enquiry.user?.company_name && <div className="text-xs text-gray-400 font-semibold">{enquiry.user?.company_name}</div>}
+                            </td>
+                            <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 font-medium">{enquiry.category}</div>
+                            <div className="text-xs text-gray-500 truncate max-w-xs">{enquiry.need}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                ${enquiry.status === 'assigned' ? 'bg-green-100 text-green-800' : 
+                                enquiry.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                'bg-gray-100 text-gray-800'}`}>
+                                {enquiry.status.toUpperCase()}
+                            </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button 
+                                onClick={() => handleOpenAssignModal(enquiry)}
+                                className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md border border-blue-200"
+                            >
+                                {enquiry.status === 'assigned' ? 'Manage' : 'View & Assign'}
+                            </button>
+                            </td>
+                        </tr>
+                        ))
+                    )}
+                    </tbody>
+                </table>
+            </div>
         </div>
       </div>
 
@@ -196,12 +243,26 @@ const EnquiryManagementTable: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500">Name</p>
-                  <p className="font-medium">{selectedEnquiry.user?.username}</p>
+                  <p className="font-medium text-gray-900">{selectedEnquiry.user?.username}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Email</p>
-                  <p className="font-medium">{selectedEnquiry.user?.email}</p>
+                  <p className="font-medium text-gray-900">{selectedEnquiry.user?.email}</p>
                 </div>
+                <div>
+                  <p className="text-xs text-gray-500">Mobile</p>
+                  <p className="font-medium text-gray-900">{selectedEnquiry.user?.mobile || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Location</p>
+                  <p className="font-medium text-gray-900">{selectedEnquiry.user?.location || 'N/A'}</p>
+                </div>
+                {selectedEnquiry.user?.company_name && (
+                    <div className="col-span-2">
+                        <p className="text-xs text-gray-500">Company</p>
+                        <p className="font-medium text-gray-900">{selectedEnquiry.user?.company_name}</p>
+                    </div>
+                )}
               </div>
             </div>
 
@@ -245,7 +306,7 @@ const EnquiryManagementTable: React.FC = () => {
                   <option value="">-- Choose Vendor --</option>
                   {vendors.map(vendor => (
                     <option key={vendor.id} value={vendor.id}>
-                      {vendor.username} ({vendor.email})
+                      {vendor.companyName || vendor.username} ({vendor.email})
                     </option>
                   ))}
                 </select>
