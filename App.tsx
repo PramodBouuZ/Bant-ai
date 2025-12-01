@@ -17,7 +17,7 @@ import { UserRole } from './types';
 
 // ProtectedRoute component for role-based access control
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   allowedRoles: UserRole[];
 }
 
