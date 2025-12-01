@@ -21,6 +21,13 @@ export interface UserProfile {
   location?: string;
 }
 
+// Category Interface
+export interface Category {
+  id: string;
+  name: string;
+  icon: string; // Emoji or URL
+}
+
 // Product Interface
 export interface Product {
   id: string;

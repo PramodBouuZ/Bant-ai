@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
   MOCK_PRODUCTS, MOCK_CATEGORIES, MOCK_RECOMMENDATIONS
 } from '../constants';
-import { ProductCategory, Product } from '../types';
+import { ProductCategory, Product, Category } from '../types';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
@@ -18,12 +18,18 @@ const HomePage: React.FC = () => {
   const { isAuthenticated, userProfile } = useAuth(); 
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // --- Hero Slider State ---
+  const [currentSlide, setCurrentSlide] = useState(0);
+
   // --- Search & Filter State ---
   const [searchTerm, setSearchTerm] = useState('');
   // All available products (DB + Mock fallback if empty)
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  
+  // Category State
+  const [categories, setCategories] = useState<Category[]>([]);
   
   // Filter States
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -44,20 +50,54 @@ const HomePage: React.FC = () => {
 
   const allTags: string[] = Array.from(new Set(allProducts.flatMap(p => p.tags || [])));
 
-  // --- Fetch Products ---
+  // Hero Slides Data
+  const HERO_SLIDES = [
+    {
+      id: 1,
+      title: <>The Premier Marketplace for AI-Qualified <span className="text-yellow-300">Telco Needs</span></>,
+      subtitle: "Connect with top-tier vendors, find the perfect IT solutions, or earn up to 10% commission by sharing qualified leads.",
+      bgClass: "from-blue-600 to-blue-800",
+      imgUrl: "https://picsum.photos/1200/800?blur=5&random=1"
+    },
+    {
+      id: 2,
+      title: <>Secure Your Business with <span className="text-yellow-300">Cybersecurity</span> & Cloud</>,
+      subtitle: "Compare top-rated enterprise security packages and cloud storage solutions tailored for your scale.",
+      bgClass: "from-indigo-600 to-purple-800",
+      imgUrl: "https://picsum.photos/1200/800?blur=5&random=2"
+    },
+    {
+      id: 3,
+      title: <>Monetize Your Network: <span className="text-yellow-300">Submit Leads</span></>,
+      subtitle: "Join our partner program. Submit qualified IT requirements and earn significant commissions upon closure.",
+      bgClass: "from-emerald-600 to-teal-800",
+      imgUrl: "https://picsum.photos/1200/800?blur=5&random=3"
+    }
+  ];
+
+  // Auto-scroll Hero Slider (5 seconds)
   useEffect(() => {
-    const fetchProducts = async () => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [HERO_SLIDES.length]);
+
+  // --- Fetch Products and Categories ---
+  useEffect(() => {
+    const fetchData = async () => {
       setIsLoadingProducts(true);
       try {
-        const { data, error } = await supabase
+        // Fetch Products
+        const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (productError) throw productError;
 
-        if (data && data.length > 0) {
-          const dbProducts: Product[] = data.map((p: any) => ({
+        if (productData && productData.length > 0) {
+          const dbProducts: Product[] = productData.map((p: any) => ({
             id: p.id,
             name: p.name,
             image: p.image || 'https://picsum.photos/400/250',
@@ -75,15 +115,40 @@ const HomePage: React.FC = () => {
           console.log("No products in DB, using mocks.");
           setAllProducts(MOCK_PRODUCTS);
         }
+
+        // Fetch Categories
+        const { data: catData, error: catError } = await supabase
+            .from('categories')
+            .select('*')
+            .order('name', { ascending: true });
+        
+        if (catData && catData.length > 0) {
+            setCategories(catData);
+        } else {
+            // Transform Mock Categories to match Category Interface
+            const mockCats: Category[] = MOCK_CATEGORIES.map((mc, idx) => ({
+                id: `mock-cat-${idx}`,
+                name: mc.name,
+                icon: mc.icon
+            }));
+            setCategories(mockCats);
+        }
+
       } catch (err) {
-        console.error("Failed to fetch products:", err);
+        console.error("Failed to fetch data:", err);
         setAllProducts(MOCK_PRODUCTS);
+        const mockCats: Category[] = MOCK_CATEGORIES.map((mc, idx) => ({
+            id: `mock-cat-${idx}`,
+            name: mc.name,
+            icon: mc.icon
+        }));
+        setCategories(mockCats);
       } finally {
         setIsLoadingProducts(false);
       }
     };
     
-    fetchProducts();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -275,68 +340,109 @@ const HomePage: React.FC = () => {
          </section>
       )}
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl shadow-lg p-8 md:p-16 mb-12 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-10">
-          <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: 'url("https://picsum.photos/1200/800?blur=5")' }}></div>
-        </div>
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-4 animate-fade-in-up">
-            The Premier Marketplace for AI-Qualified <span className="text-yellow-300">Telco Needs</span>
-          </h1>
-          <p className="text-lg md:text-xl mb-8 opacity-90 animate-fade-in delay-200">
-            Connect with top-tier vendors, find the perfect IT solutions, or earn up to 10% commission by sharing qualified leads.
-          </p>
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-fade-in delay-400">
-            <input
-              type="text"
-              placeholder="Search for services, solutions..."
-              className="w-full sm:w-2/3 md:w-1/2 px-6 py-3 rounded-full border-2 border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white transition-all duration-300"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Search for services or solutions"
-            />
-            <Tooltip text="Search the marketplace for vendors and products" position="bottom">
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-8 py-3 bg-yellow-400 text-blue-900 font-bold rounded-full hover:bg-yellow-300 transition-colors duration-300 shadow-lg"
-                aria-label="Search"
-              >
-                Search
-              </button>
-            </Tooltip>
-          </form>
-          
-          <div className="mt-8 flex justify-center gap-4">
-             <Tooltip text="Use AI to automatically qualify your needs using BANT parameters" position="bottom">
-               <button 
-                 onClick={() => navigate('/post-requirement')}
-                 className="bg-white text-blue-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1"
-               >
-                 ✨ Post Requirement with AI
-               </button>
-             </Tooltip>
+      {/* Hero Section Carousel */}
+      <section className="relative rounded-xl shadow-lg mb-12 overflow-hidden min-h-[500px] flex flex-col justify-center bg-gray-900 text-white">
+        
+        {/* Animated Backgrounds */}
+        {HERO_SLIDES.map((slide, index) => (
+          <div 
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+          >
+             <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgClass} opacity-90`} />
+             <div className="absolute inset-0 opacity-20 bg-cover bg-center" style={{ backgroundImage: `url(${slide.imgUrl})` }} />
           </div>
+        ))}
+
+        {/* Content Overlay */}
+        <div className="relative z-20 w-full max-w-4xl mx-auto text-center p-8">
+            
+            {/* Horizontally Scrollable Text Container */}
+            <div className="relative h-48 md:h-56 mb-4 overflow-hidden">
+               {HERO_SLIDES.map((slide, index) => (
+                   <div 
+                      key={slide.id} 
+                      className={`absolute top-0 left-0 w-full h-full transition-all duration-700 ease-in-out transform flex flex-col justify-center items-center ${
+                          index === currentSlide 
+                            ? 'translate-x-0 opacity-100' 
+                            : index < currentSlide 
+                              ? '-translate-x-full opacity-0' 
+                              : 'translate-x-full opacity-0'
+                      }`}
+                   >
+                        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-4">
+                          {slide.title}
+                        </h1>
+                        <p className="text-lg md:text-xl opacity-90">
+                          {slide.subtitle}
+                        </p>
+                   </div>
+               ))}
+            </div>
+
+            {/* Static Interactive Elements */}
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-fade-in delay-200 relative z-30">
+              <input
+                type="text"
+                placeholder="Search for services, solutions..."
+                className="w-full sm:w-2/3 md:w-1/2 px-6 py-3 rounded-full border-2 border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 backdrop-blur-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search for services or solutions"
+              />
+              <Tooltip text="Search the marketplace for vendors and products" position="bottom">
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-8 py-3 bg-yellow-400 text-blue-900 font-bold rounded-full hover:bg-yellow-300 transition-colors duration-300 shadow-lg"
+                  aria-label="Search"
+                >
+                  Search
+                </button>
+              </Tooltip>
+            </form>
+            
+            <div className="mt-8 flex justify-center gap-4 relative z-30">
+              <Tooltip text="Use AI to automatically qualify your needs using BANT parameters" position="bottom">
+                <button 
+                  onClick={() => navigate('/post-requirement')}
+                  className="bg-white text-blue-800 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1"
+                >
+                  ✨ Post Requirement with AI
+                </button>
+              </Tooltip>
+            </div>
+        </div>
+
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-4 left-0 right-0 z-30 flex justify-center space-x-2">
+            {HERO_SLIDES.map((_, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setCurrentSlide(idx)} 
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${idx === currentSlide ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`} 
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+            ))}
         </div>
       </section>
 
-      {/* Popular Categories (Quick Access) */}
+      {/* Popular Categories (Quick Access) - Scrollable */}
       <section className="my-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Explore by Category</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {MOCK_CATEGORIES.map((category) => (
-            <Tooltip key={category.name} text={`Filter by ${category.name}`} position="top">
+        <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
+          {categories.map((category) => (
+            <Tooltip key={category.id} text={`Filter by ${category.name}`} position="top">
               <div
                 onClick={() => {
                   setSelectedCategories([category.name]);
                   document.getElementById('marketplace-section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200"
+                className="bg-white rounded-lg shadow-sm p-4 text-center hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200 flex-shrink-0 w-40"
                 role="button"
                 tabIndex={0}
               >
                 <div className="text-3xl mb-2">{category.icon}</div>
-                <h3 className="text-xs font-semibold text-gray-700">{category.name}</h3>
+                <h3 className="text-xs font-semibold text-gray-700 whitespace-normal">{category.name}</h3>
               </div>
             </Tooltip>
           ))}
@@ -408,8 +514,8 @@ const HomePage: React.FC = () => {
             <div className="mb-6">
               <h4 className="font-semibold text-gray-700 mb-3">Categories</h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {MOCK_CATEGORIES.map(cat => (
-                  <label key={cat.name} className="flex items-center space-x-2 cursor-pointer">
+                {categories.map(cat => (
+                  <label key={cat.id} className="flex items-center space-x-2 cursor-pointer">
                     <input 
                       type="checkbox" 
                       checked={selectedCategories.includes(cat.name)}
@@ -483,6 +589,71 @@ const HomePage: React.FC = () => {
                </div>
              )}
           </div>
+        </div>
+      </section>
+
+      {/* Value Propositions Section (Restored) */}
+      <section className="my-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-blue-50 rounded-xl p-8 border border-blue-100 flex flex-col items-start">
+           <h2 className="text-2xl font-bold text-gray-900 mb-4">Pay-Per-Success AI Lead Generation</h2>
+           <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+             Join our marketplace and receive AI-qualified leads that are ready for engagement. You only pay a success fee when you close a deal, making it a risk-free channel for business growth.
+           </p>
+           <button 
+             onClick={() => navigate('/signup?role=vendor')} 
+             className="mt-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+           >
+             Become a Vendor
+           </button>
+        </div>
+
+        <div className="bg-yellow-50 rounded-xl p-8 border border-yellow-100 flex flex-col items-start">
+           <h2 className="text-2xl font-bold text-gray-900 mb-4">Earn Up to 10% Commission</h2>
+           <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+             Monetize your professional network. Submit a qualified lead for any IT or software requirement you come across. If your lead results in a successful deal on our platform, you earn a commission.
+           </p>
+           <button 
+             onClick={() => navigate('/post-requirement')} 
+             className="mt-auto bg-yellow-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-yellow-600 transition-colors shadow-sm"
+           >
+             Submit a Lead
+           </button>
+        </div>
+      </section>
+
+      {/* Support Section (Restored) */}
+      <section className="my-16 flex justify-center">
+         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-3xl w-full flex flex-col md:flex-row items-center gap-8 border border-gray-100">
+            <div className="relative">
+              <img 
+                src="https://images.unsplash.com/photo-1534330207526-9e44f44abc27?auto=format&fit=crop&q=80&w=150&h=150" 
+                alt="Support Team" 
+                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+              />
+              <span className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></span>
+            </div>
+            <div className="text-center md:text-left flex-1">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Support 24/7</h2>
+              <p className="text-gray-600 mb-6 text-lg">Wanna talk? Send us a message</p>
+              <a 
+                href="mailto:support@bantconfirm.com"
+                className="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-md w-full md:w-auto text-center"
+              >
+                support@bantconfirm.com
+              </a>
+            </div>
+         </div>
+      </section>
+
+      {/* Trusted Vendors Header (Restored) */}
+      <section className="my-16 text-center">
+        <h2 className="text-2xl font-bold text-gray-800 mb-8">Trusted Vendors</h2>
+        <div className="flex flex-wrap justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+             <div className="text-2xl font-bold text-gray-400">Microsoft</div>
+             <div className="text-2xl font-bold text-gray-400">Google Cloud</div>
+             <div className="text-2xl font-bold text-gray-400">AWS</div>
+             <div className="text-2xl font-bold text-gray-400">Salesforce</div>
+             <div className="text-2xl font-bold text-gray-400">Zoho</div>
         </div>
       </section>
 

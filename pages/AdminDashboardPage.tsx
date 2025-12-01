@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import UserManagementTable from '../components/admin/UserManagementTable';
 import EnquiryManagementTable from '../components/admin/EnquiryManagementTable';
 import ProductManagementTable from '../components/admin/ProductManagementTable';
+import CategoryManagementTable from '../components/admin/CategoryManagementTable';
 import SettingsPanel from '../components/admin/SettingsPanel';
 
 const AdminDashboardPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'enquiries' | 'products' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'enquiries' | 'products' | 'categories' | 'settings'>('overview');
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -18,7 +19,7 @@ const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex overflow-x-auto space-x-4 border-b border-gray-200 mb-8 pb-1">
+      <div className="flex overflow-x-auto space-x-4 border-b border-gray-200 mb-8 pb-1 scrollbar-hide">
         <button
           onClick={() => setActiveTab('overview')}
           className={`px-4 py-2 font-medium transition-colors whitespace-nowrap ${
@@ -50,6 +51,14 @@ const AdminDashboardPage: React.FC = () => {
           }`}
         >
           Products
+        </button>
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`px-4 py-2 font-medium transition-colors whitespace-nowrap ${
+            activeTab === 'categories' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Categories
         </button>
         <button
           onClick={() => setActiveTab('settings')}
@@ -96,6 +105,16 @@ const AdminDashboardPage: React.FC = () => {
                 Products
               </h2>
             </div>
+            
+            <div 
+              className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => setActiveTab('categories')}
+            >
+               <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <span className="bg-pink-100 p-2 rounded-full mr-3 text-pink-600">🏷️</span>
+                Categories
+              </h2>
+            </div>
 
              <div 
               className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
@@ -113,6 +132,7 @@ const AdminDashboardPage: React.FC = () => {
         {activeTab === 'users' && <UserManagementTable />}
         {activeTab === 'enquiries' && <EnquiryManagementTable />}
         {activeTab === 'products' && <ProductManagementTable />}
+        {activeTab === 'categories' && <CategoryManagementTable />}
         {activeTab === 'settings' && <SettingsPanel />}
 
       </div>
