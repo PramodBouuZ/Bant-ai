@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +24,7 @@ const LoginPage: React.FC = () => {
       // AuthContext useEffect will handle setting isAuthenticated and userRole,
       // and the AppContent's useEffect handles redirection.
     } else {
-      setError('Invalid email or password.');
+      setError('Invalid email or password. Please check your credentials or verify your email.');
     }
   };
 
