@@ -1,10 +1,5 @@
-
-import { GoogleGenAI, Type } from "@google/genai";
-
-// Initialize the Gemini AI client
-// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
-// Use this process.env.API_KEY string directly when initializing the @google/genai client instance.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// AI Feature disabled for Vercel Deployment stability
+// This file now provides a mock response to simulate the analysis process.
 
 export interface BANTResult {
   budget: string;
@@ -16,48 +11,29 @@ export interface BANTResult {
 }
 
 export const qualifyLeadWithAI = async (userInput: string): Promise<BANTResult> => {
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `
-      You are an expert sales qualifier for an IT Marketplace. 
-      Analyze the following user input and extract the BANT parameters (Budget, Authority, Need, Timeframe).
-      
-      User Input: "${userInput}"
-      
-      Instructions:
-      1. Extract BANT parameters. If not explicitly stated, infer reasonably or state "Not specified".
-      2. **Crucial**: Determine the MOST SPECIFIC IT category possible. Do not use generic terms if specific ones apply. 
-         - Example: Instead of "CRM", specify "CRM Software", "Real Estate CRM", or "WhatsApp CRM API" based on context.
-         - Example: Instead of "Voice", specify "SIP Trunk", "Cloud Telephony", or "Call Center Solution".
-      3. Write a professional summary of the enquiry.
-    `,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            budget: { type: Type.STRING, description: "The budget mentioned or implied" },
-            authority: { type: Type.STRING, description: "The decision making power of the user" },
-            need: { type: Type.STRING, description: "The specific technical or business requirement" },
-            timeframe: { type: Type.STRING, description: "When they need this implemented" },
-            summary: { type: Type.STRING, description: "A professional summary of the enquiry" },
-            category: { type: Type.STRING, description: "The specific IT category identified" }
-          },
-          required: ["budget", "authority", "need", "timeframe", "summary", "category"]
-        }
-      }
-    });
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const responseText = response.text;
+  console.log("AI Analysis mocked for input:", userInput);
 
-    if (responseText) {
-      return JSON.parse(responseText) as BANTResult;
-    } else {
-      throw new Error("No response text from AI");
-    }
-  } catch (error) {
-    console.error("AI Processing Error:", error);
-    throw error;
-  }
+  // Basic keyword matching to simulate category detection
+  const lowerInput = userInput.toLowerCase();
+  let category = "Custom Requirement";
+  
+  if (lowerInput.includes("crm")) category = "CRM Software";
+  else if (lowerInput.includes("voice") || lowerInput.includes("call") || lowerInput.includes("sip")) category = "Voice Solutions";
+  else if (lowerInput.includes("cloud") || lowerInput.includes("storage")) category = "Cloud Storage";
+  else if (lowerInput.includes("internet") || lowerInput.includes("leased") || lowerInput.includes("broadband")) category = "Internet Leased Line";
+  else if (lowerInput.includes("security") || lowerInput.includes("cyber")) category = "SMB Cybersecurity Package";
+  else if (lowerInput.includes("whatsapp")) category = "WhatsApp API";
+
+  // Return mock BANT data
+  return {
+    budget: "Not specified (AI Disabled)",
+    authority: "Not specified (AI Disabled)",
+    need: userInput.length > 50 ? userInput.substring(0, 50) + "..." : userInput,
+    timeframe: "Immediate (Default)",
+    summary: `(Note: AI features are currently disabled for deployment). The user is interested in ${category}. Details provided: "${userInput}"`,
+    category: category
+  };
 };
