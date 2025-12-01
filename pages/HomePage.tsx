@@ -592,7 +592,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Value Propositions Section (Restored) */}
+      {/* Value Propositions Section (Added Back) */}
       <section className="my-16 grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-blue-50 rounded-xl p-8 border border-blue-100 flex flex-col items-start">
            <h2 className="text-2xl font-bold text-gray-900 mb-4">Pay-Per-Success AI Lead Generation</h2>
@@ -621,7 +621,47 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Support Section (Restored) */}
+      {/* Why Choose BANTConfirm Section (Added Back) */}
+      <section className="my-16">
+        <h2 className="text-3xl font-bold text-gray-800 mb-10 text-center">Why Choose BANTConfirm?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+              🎯
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">AI-Powered Precision</h3>
+            <p className="text-gray-600 text-sm">Our BANT algorithms ensure 99% accuracy in lead qualification, saving you time.</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+              ✅
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Verified Vendors</h3>
+            <p className="text-gray-600 text-sm">Access a curated network of top-tier, enterprise-grade technology providers.</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+              ⚡
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Fast Turnaround</h3>
+            <p className="text-gray-600 text-sm">Receive comprehensive quotations within 24 hours of posting your requirement.</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+              🔒
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Secure & Private</h3>
+            <p className="text-gray-600 text-sm">Your data and requirements are encrypted and shared only with matched vendors.</p>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Support Section (Added Back) */}
       <section className="my-16 flex justify-center">
          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-3xl w-full flex flex-col md:flex-row items-center gap-8 border border-gray-100">
             <div className="relative">
@@ -634,7 +674,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="text-center md:text-left flex-1">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Support 24/7</h2>
-              <p className="text-gray-600 mb-6 text-lg">Wanna talk? Send us a message</p>
+              <p className="text-gray-600 mb-6 text-lg">Wanna talk? Send us a message regarding any product or service.</p>
               <a 
                 href="mailto:support@bantconfirm.com"
                 className="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-md w-full md:w-auto text-center"
@@ -645,7 +685,7 @@ const HomePage: React.FC = () => {
          </div>
       </section>
 
-      {/* Trusted Vendors Header (Restored) */}
+      {/* Trusted Vendors Header (Added Back) */}
       <section className="my-16 text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-8">Trusted Vendors</h2>
         <div className="flex flex-wrap justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
