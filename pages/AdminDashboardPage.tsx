@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import UserManagementTable from '../components/admin/UserManagementTable';
+import EnquiryManagementTable from '../components/admin/EnquiryManagementTable';
 
 const AdminDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'enquiries' | 'reports'>('overview');
@@ -104,10 +105,13 @@ const AdminDashboardPage: React.FC = () => {
           </div>
         )}
 
-        {/* Placeholders for other tabs */}
+        {/* Enquiry Management Tab */}
         {activeTab === 'enquiries' && (
-          <div className="bg-white p-8 rounded-lg shadow-md text-center border-dashed border-2 border-gray-300">
-            <p className="text-gray-500 text-lg">Enquiry Approval Module Coming Soon...</p>
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Enquiry Management</h2>
+            </div>
+            <EnquiryManagementTable />
           </div>
         )}
         

@@ -64,6 +64,11 @@ export interface Enquiry {
   createdAt: Date;
   location?: string; // For search
   keywords?: string[]; // For search
+  // Extended property for Admin Dashboard Joins
+  user?: {
+    username: string;
+    email: string;
+  };
 }
 
 // Notification Interface
