@@ -4,22 +4,14 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
   const env = loadEnv(mode, (process as any).cwd(), '');
 
   return {
     plugins: [react()],
-    build: {
-      outDir: 'dist',
-      sourcemap: true,
-      rollupOptions: {
-        // Default rollup options
-      }
-    },
     define: {
-      // Safely expose environment variables to the client
-      'process.env.SUPABASE_URL': JSON.stringify(env.SUPABASE_URL),
-      'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.SUPABASE_ANON_KEY),
+      // Define global constants that are replaced at build time
+      __SUPABASE_URL__: JSON.stringify(env.VITE_SUPABASE_URL || ''),
+      __SUPABASE_ANON_KEY__: JSON.stringify(env.VITE_SUPABASE_ANON_KEY || ''),
     }
   };
 });

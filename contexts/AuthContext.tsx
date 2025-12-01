@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, UserRole } from '../types';
-import { supabase } from '../services/supabase'; // Import Supabase client
+import { supabase } from '../services/supabase';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -23,126 +24,111 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchSessionAndProfile = async () => {
       setLoading(true);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      if (sessionError) {
-        console.error('Error getting session:', sessionError.message);
-        setIsAuthenticated(false);
-        setUserProfile(null);
-        setUserRole(null);
-        setLoading(false);
-        return;
-      }
+        if (sessionError) throw sessionError;
 
-      if (session?.user) {
-        // Fetch user profile from your 'users' table
-        const { data: profile, error: profileError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+        if (session?.user) {
+          // Fetch user profile from the public 'users' table
+          const { data: profile, error: profileError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profileError) {
-          console.error('Error fetching user profile:', profileError.message);
-          setIsAuthenticated(false); // Consider logging out if profile can't be fetched
-          setUserProfile(null);
-          setUserRole(null);
-        } else if (profile) {
-          setIsAuthenticated(true);
-          setUserProfile(profile as UserProfile);
-          setUserRole(profile.role as UserRole);
+          if (profile) {
+            setIsAuthenticated(true);
+            setUserProfile(profile as UserProfile);
+            setUserRole(profile.role as UserRole);
+          } else {
+             console.error('User authenticated but profile not found in public table.');
+             setIsAuthenticated(true); // Still authenticated technically
+             // Fallback profile from metadata if DB trigger failed
+             const fallback: UserProfile = {
+                 id: session.user.id,
+                 email: session.user.email || '',
+                 username: session.user.user_metadata?.username || 'User',
+                 role: session.user.user_metadata?.role || UserRole.USER,
+                 status: 'active'
+             };
+             setUserProfile(fallback);
+             setUserRole(fallback.role);
+          }
         } else {
-          // User exists in auth.users but not in your 'users' table (might indicate incomplete signup)
-          console.warn('User found in auth.users but not in public.users table.');
           setIsAuthenticated(false);
           setUserProfile(null);
           setUserRole(null);
         }
-      } else {
+      } catch (err) {
+        console.error('Supabase session check failed:', err);
         setIsAuthenticated(false);
-        setUserProfile(null);
-        setUserRole(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      // This will trigger whenever auth state changes (login, logout, token refresh)
-      fetchSessionAndProfile();
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+       if (_event === 'SIGNED_OUT') {
+           setIsAuthenticated(false);
+           setUserProfile(null);
+           setUserRole(null);
+       } else if (_event === 'SIGNED_IN' && session) {
+           fetchSessionAndProfile();
+       }
     });
 
-    fetchSessionAndProfile(); // Initial fetch
+    fetchSessionAndProfile();
 
     return () => {
-      authListener?.subscription.unsubscribe(); // Cleanup the listener
+      authListener?.subscription.unsubscribe();
     };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-
-    if (error) {
-      console.error('Login error:', error.message);
-      setIsAuthenticated(false);
-      setUserProfile(null);
-      setUserRole(null);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      // State updates handled by onAuthStateChange listener
+      return true; 
+    } catch (err) {
+      console.error("Login failed:", err);
+      setLoading(false);
       return false;
     }
-
-    if (data.user) {
-      // Session management and profile loading handled by useEffect and onAuthStateChange
-      return true;
-    }
-    return false; // Should ideally not be reached if no error and no user
   };
 
   const signup = async (email: string, password: string, username: string, role: UserRole): Promise<boolean> => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    
-    if (error) {
-      console.error('Signup error:', error.message);
-      setLoading(false);
-      return false;
-    }
-
-    if (data.user) {
-      // Insert into your public 'users' table to store username and role
-      const { error: insertError } = await supabase
-        .from('users')
-        .insert([
-          { id: data.user.id, email: data.user.email, username, role: role },
-        ]);
-
-      if (insertError) {
-        console.error('Error inserting user profile:', insertError.message);
-        // You might want to delete the auth.user here if profile creation fails
-        await supabase.auth.admin.deleteUser(data.user.id); // Requires admin access, might not be suitable for client-side
+    try {
+        // We pass metadata so the SQL Trigger can pick it up and insert into public.users
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { 
+                data: { username, role } 
+            }
+        });
+        
+        if (error) throw error;
+        // If email confirmation is disabled in Supabase, they are logged in.
+        // If enabled, they need to check email. 
+        return true;
+    } catch (err) {
+        console.error("Signup failed:", err);
         setLoading(false);
         return false;
-      }
-      // Session management and profile loading handled by useEffect and onAuthStateChange
-      return true;
     }
-    setLoading(false);
-    return false; // Should not be reached if no error and no user
   };
 
   const logout = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signOut();
+    await supabase.auth.signOut();
     setLoading(false);
-
-    if (error) {
-      console.error('Logout error:', error.message);
-      return; // Keep user logged in if logout fails
-    }
-
-    // State reset is handled by onAuthStateChange in useEffect
-    window.location.hash = '/login'; // Redirect to login page
+    window.location.hash = '/login'; 
   };
 
   const value = {
