@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { COMPANY_LINKS, PARTNER_LINKS, SOCIAL_LINKS } from '../../constants';
 import { useSettings } from '../../contexts/SettingsContext';
@@ -13,8 +12,10 @@ const Footer: React.FC = () => {
         {/* About Section */}
         <div className="space-y-4">
           <Link to="/" className="text-3xl font-bold text-white flex items-center" aria-label={`${settings.appName} Home`}>
-            {settings.logoUrl && <img src={settings.logoUrl} alt="Logo" className="h-8 w-8 mr-2 object-contain" />}
-            {settings.appName}
+            {settings.logoUrl && (
+              <img src={settings.logoUrl} alt={settings.appName} className="h-8 w-auto object-contain mr-2" />
+            )}
+            {settings.showAppName && settings.appName}
           </Link>
           <p className="text-gray-400 text-sm">
             The intelligent B2B marketplace for AI-qualified IT and software leads.

@@ -316,7 +316,6 @@ const HomePage: React.FC = () => {
          </section>
       )}
 
-      {/* Hero Section - Height Increased to avoid text clipping */}
       <section className="relative rounded-xl shadow-lg mb-12 overflow-hidden min-h-[600px] flex flex-col justify-center bg-gray-900 text-white">
         {HERO_SLIDES.map((slide, index) => (
           <div key={slide.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
@@ -325,17 +324,14 @@ const HomePage: React.FC = () => {
           </div>
         ))}
         <div className="relative z-20 w-full max-w-4xl mx-auto text-center p-8">
-            
-            {/* Height set to h-72 md:h-80 to accommodate text wrapping */}
-            <div className="relative h-72 md:h-80 mb-8 overflow-hidden flex items-center justify-center">
+            <div className="relative h-60 md:h-72 mb-8 overflow-hidden flex items-center justify-center">
                {HERO_SLIDES.map((slide, index) => (
                    <div key={slide.id} className={`absolute top-0 left-0 w-full h-full transition-all duration-700 ease-in-out transform flex flex-col justify-center items-center px-4 ${index === currentSlide ? 'translate-x-0 opacity-100' : index < currentSlide ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'}`}>
                         <h1 className="text-3xl md:text-6xl font-extrabold leading-tight mb-4 drop-shadow-lg">{slide.title}</h1>
-                        <p className="text-base md:text-xl opacity-90 max-w-2xl mx-auto drop-shadow-md">{slide.subtitle}</p>
+                        <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto drop-shadow-md">{slide.subtitle}</p>
                    </div>
                ))}
             </div>
-
             <form onSubmit={handleSearch} className="flex flex-col sm:flex-row justify-center items-center gap-4 animate-fade-in delay-200 relative z-30">
               <input type="text" placeholder="Search for services, solutions..." className="w-full sm:w-2/3 md:w-1/2 px-6 py-3 rounded-full border-2 border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 backdrop-blur-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               <Tooltip text="Search the marketplace for vendors and products" position="bottom">

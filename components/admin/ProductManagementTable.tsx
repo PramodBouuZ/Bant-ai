@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../services/supabase';
 import { Product, ProductCategory } from '../../types';

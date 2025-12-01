@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../services/supabase';
 import { TrustedVendor } from '../../types';
