@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { COMPANY_LINKS, PARTNER_LINKS, SOCIAL_LINKS } from '../../constants';
+import { COMPANY_LINKS, PARTNER_LINKS } from '../../constants';
 import { useSettings } from '../../contexts/SettingsContext';
 import { Link } from 'react-router-dom';
 
@@ -22,18 +23,16 @@ const Footer: React.FC = () => {
             The intelligent B2B marketplace for AI-qualified IT and software leads.
           </p>
           <div className="flex space-x-4 mt-4">
-            {SOCIAL_LINKS.map((link) => (
-              <a
-                key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 bg-blue-800 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors duration-200 text-lg font-bold"
-                aria-label={link.name}
-              >
-                {link.name.charAt(0)}
-              </a>
-            ))}
+            {/* Dynamic Social Icons */}
+            {settings.socialFacebook && (
+                <a href={settings.socialFacebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-blue-800 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors font-bold">F</a>
+            )}
+            {settings.socialTwitter && (
+                <a href={settings.socialTwitter} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-blue-800 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors font-bold">T</a>
+            )}
+            {settings.socialLinkedin && (
+                <a href={settings.socialLinkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-blue-800 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors font-bold">L</a>
+            )}
           </div>
         </div>
 
@@ -43,9 +42,7 @@ const Footer: React.FC = () => {
           <ul className="space-y-2">
             {COMPANY_LINKS.map((link) => (
               <li key={link.name}>
-                <Link to={link.path} className="text-gray-400 hover:text-white transition-colors duration-200 text-sm" aria-label={link.name}>
-                  {link.name}
-                </Link>
+                <Link to={link.path} className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">{link.name}</Link>
               </li>
             ))}
           </ul>
@@ -57,15 +54,13 @@ const Footer: React.FC = () => {
           <ul className="space-y-2">
             {PARTNER_LINKS.map((link) => (
               <li key={link.name}>
-                <Link to={link.path} className="text-gray-400 hover:text-white transition-colors duration-200 text-sm" aria-label={link.name}>
-                  {link.name}
-                </Link>
+                <Link to={link.path} className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">{link.name}</Link>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Contact Info (Placeholder) */}
+        {/* Contact Info */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Contact</h3>
           <p className="text-gray-400 text-sm">Email: <a href="mailto:info@bantconfirm.com" className="hover:text-white">info@bantconfirm.com</a></p>

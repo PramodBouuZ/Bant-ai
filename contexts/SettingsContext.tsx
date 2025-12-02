@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { SiteSettings } from '../types';
@@ -13,7 +14,12 @@ const defaultSettings: SiteSettings = {
   logoUrl: 'https://assets-global.website-files.com/62c01991206f74a0678d85f6/62cf9b152d244c062c3e1644_bant-confirm-favicon.png',
   faviconUrl: '',
   appName: APP_NAME,
-  showAppName: true
+  showAppName: true,
+  socialFacebook: '',
+  socialTwitter: '',
+  socialLinkedin: '',
+  whatsappApiKey: '',
+  whatsappPhoneNumberId: ''
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -36,7 +42,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           logoUrl: data.logo_url || defaultSettings.logoUrl,
           faviconUrl: data.favicon_url || '',
           appName: data.app_name || defaultSettings.appName,
-          showAppName: data.show_app_name ?? true // Default to true if null
+          showAppName: data.show_app_name ?? true,
+          socialFacebook: data.social_facebook || '',
+          socialTwitter: data.social_twitter || '',
+          socialLinkedin: data.social_linkedin || '',
+          whatsappApiKey: data.whatsapp_api_key || '',
+          whatsappPhoneNumberId: data.whatsapp_phone_number_id || ''
         });
         
         // Update document title dynamically
@@ -49,7 +60,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       }
     } catch (err) {
-      console.warn('Could not load site settings (table might not exist yet):', err);
+      console.warn('Could not load site settings:', err);
     } finally {
       setLoading(false);
     }
@@ -61,12 +72,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateSettings = async (newSettings: Partial<SiteSettings>): Promise<boolean> => {
     try {
-      // Check if row exists, if not insert, else update
       const payload = {
           logo_url: newSettings.logoUrl,
           favicon_url: newSettings.faviconUrl,
           app_name: newSettings.appName,
-          show_app_name: newSettings.showAppName
+          show_app_name: newSettings.showAppName,
+          social_facebook: newSettings.socialFacebook,
+          social_twitter: newSettings.socialTwitter,
+          social_linkedin: newSettings.socialLinkedin,
+          whatsapp_api_key: newSettings.whatsappApiKey,
+          whatsapp_phone_number_id: newSettings.whatsappPhoneNumberId
       };
 
       if (settings.id) {
@@ -82,7 +97,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           if (error) throw error;
       }
       
-      await fetchSettings(); // Refresh
+      await fetchSettings(); // Refresh local state
       return true;
     } catch (err) {
       console.error('Failed to update settings:', err);

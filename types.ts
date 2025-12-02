@@ -50,7 +50,14 @@ export interface SiteSettings {
   logoUrl: string;
   faviconUrl: string;
   appName: string;
-  showAppName: boolean; // New field
+  showAppName: boolean;
+  // Social Links
+  socialFacebook?: string;
+  socialTwitter?: string;
+  socialLinkedin?: string;
+  // WhatsApp Configuration
+  whatsappApiKey?: string;
+  whatsappPhoneNumberId?: string;
 }
 
 // Trusted Vendor Interface
