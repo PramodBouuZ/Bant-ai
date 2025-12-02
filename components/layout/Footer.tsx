@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
         <div className="space-y-4">
           <Link to="/" className="text-3xl font-bold text-white flex items-center" aria-label={`${settings.appName} Home`}>
             {settings.logoUrl ? (
-              <img src={settings.logoUrl} alt={settings.appName} className="h-8 w-auto object-contain" />
+              <img src={settings.logoUrl} alt={settings.appName} className="h-10 w-auto object-contain" />
             ) : (
               settings.appName
             )}
@@ -69,7 +69,7 @@ const Footer: React.FC = () => {
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Contact</h3>
           <p className="text-gray-400 text-sm">Email: <a href="mailto:info@bantconfirm.com" className="hover:text-white">info@bantconfirm.com</a></p>
-          <p className="text-gray-400 text-sm">Phone: +91 12345 67890</p> {/* Placeholder */}
+          <p className="text-gray-400 text-sm">Phone: +91 12345 67890</p>
           <p className="text-gray-400 text-sm">Address: Noida, Uttar Pradesh 201301</p>
         </div>
       </div>
