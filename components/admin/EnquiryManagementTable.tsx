@@ -1,3 +1,8 @@
+import React, { useEffect, useState } from "react";
+import { supabase } from "../../../services/supabase";
+import { Enquiry } from "../../../types";
+import LoadingSpinner from "../../LoadingSpinner";
+import Modal from "../../Modal";
 import type { Enquiry } from '../../types';
 
 const EnquiryManagementTable: React.FC = () => {
