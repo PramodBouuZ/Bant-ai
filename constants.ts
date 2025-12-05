@@ -168,44 +168,53 @@ export const MOCK_RECOMMENDATIONS: AIRecommendation[] = [
 export const MOCK_ENQUIRIES: Enquiry[] = [
   {
     id: 'enq-001',
-    userId: 'user-001',
-    productName: 'CRM Software Basic',
-    category: ProductCategory.CRM_SOFTWARE,
+    name: 'Rahul Sharma',
+    email: 'rahul@example.com',
+    phone: '9876543210',
+    message: 'Interested in CRM with WhatsApp automation.',
+    category: 'CRM Software',
     budget: '₹1,000/month',
     authority: 'decision maker',
     need: 'CRM with automation and WhatsApp integration',
     timeframe: '1-2 weeks',
-    fullEnquiryText: 'Looking for CRM Software with automation and WhatsApp integration, budget ₹1,000/month, decision maker, implementation in 1-2 weeks.',
+    fullEnquiryText:
+      'Looking for CRM Software with automation and WhatsApp integration.',
     status: 'pending',
     createdAt: new Date('2024-07-20T10:00:00Z'),
   },
+
   {
     id: 'enq-002',
-    userId: 'user-001',
-    productName: 'Cloud Storage Pro',
-    category: ProductCategory.CLOUD_STORAGE,
-    budget: '₹50/TB',
-    authority: 'recommending',
-    need: 'Secure cloud storage for project files',
-    timeframe: 'Immediately',
-    fullEnquiryText: 'Need secure cloud storage for project files, budget ₹50/TB, recommending for my company, implementation immediately.',
-    status: 'assigned',
-    assignedVendorId: 'vendor-001',
-    createdAt: new Date('2024-07-18T14:30:00Z'),
+    name: 'Amit Verma',
+    email: 'amit@example.com',
+    phone: '9123456780',
+    message: 'Need SIP trunk for office setup.',
+    category: 'SIP Trunk',
+    budget: '₹2,500/month',
+    authority: 'IT Manager',
+    need: 'SIP trunk with 10 channels',
+    timeframe: 'Immediate',
+    fullEnquiryText: 'Need SIP trunk for voice solution in office.',
+    status: 'approved',
+    createdAt: new Date('2024-07-22T09:00:00Z'),
   },
+
   {
     id: 'enq-003',
-    userId: 'user-001',
-    category: ProductCategory.CUSTOM_REQUIREMENT,
+    name: 'Sneha Patel',
+    email: 'sneha@example.com',
+    phone: '9001200345',
+    message: 'Looking for cybersecurity package.',
+    category: 'SMB Cybersecurity Package',
     budget: '₹5,000/month',
-    authority: 'decision maker',
-    need: 'Development of a custom mobile app for field service management with offline capabilities.',
-    timeframe: '3-6 months',
-    // Fix: Complete the fullEnquiryText string and add missing 'status' and 'createdAt'
-    fullEnquiryText: 'Looking for development of a custom mobile app for field service management with offline capabilities. Budget around ₹5,000/month, decision maker, timeframe 3-6 months.',
-    status: 'pending', // Added missing property
-    createdAt: new Date('2024-07-15T09:00:00Z'), // Added missing property
-  },
+    authority: 'Founder',
+    need: 'Cybersecurity for SMB with monitoring',
+    timeframe: '3-4 weeks',
+    fullEnquiryText:
+      'Looking for an SMB Cybersecurity Package including monitoring.',
+    status: 'assigned',
+    createdAt: new Date('2024-07-25T11:00:00Z'),
+  }
 ];
 
 // Links for Footer and Navbar
