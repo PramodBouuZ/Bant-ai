@@ -80,30 +80,29 @@ export enum ProductCategory {
   CUSTOM_REQUIREMENT = 'Custom Requirement',
 }
 
-// Enquiry Interface (based on BANT)
+// Enquiry Interface (matched to Supabase schema)
 export interface Enquiry {
   id: string;
-  userId: string;
-  productName?: string; // If enquiry is for a specific product
-  category: ProductCategory | string; // Can be a custom string for custom requirements
-  budget: string; // From BANT (e.g., "₹1,000/month", "₹12,000/year")
-  authority: string; // From BANT (e.g., "decision maker", "recommending")
-  need: string; // From BANT (e.g., "CRM with automation and WhatsApp integration")
-  timeframe: string; // From BANT (e.g., "Immediately", "1-2 weeks", "3 months")
-  fullEnquiryText: string; // AI-generated detailed enquiry
+
+  // User details stored directly in enquiries table
+  name: string;
+  email: string;
+  phone: string;
+  message?: string;
+
+  // BANT + category details
+  category: string;
+  budget: string;
+  authority: string;
+  need: string;
+  timeframe: string;
+  fullEnquiryText?: string;
+
+  // Admin-related fields
   status: 'pending' | 'approved' | 'rejected' | 'assigned';
   assignedVendorId?: string;
+
   createdAt: Date;
-  location?: string; // For search
-  keywords?: string[]; // For search
-  // Extended property for Admin Dashboard Joins
-  user?: {
-    username: string;
-    email: string;
-    mobile?: string;
-    company_name?: string;
-    location?: string;
-  };
 }
 
 // Notification Interface
